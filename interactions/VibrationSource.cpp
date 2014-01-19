@@ -10,6 +10,15 @@ VibrationSource::VibrationSource (double range, Robot* owner, Vector relativePos
 	this->pos = Component::absolutePosition;
 }
 
+VibrationSource::VibrationSource (const VibrationSource &orig):
+	LocalInteraction (orig.LocalInteraction::r, orig.LocalInteraction::owner),
+	Component (orig)
+{
+}
+
+VibrationSource::~VibrationSource ()
+{
+}
 
 void VibrationSource::
 init (double dt, Enki::World* w)

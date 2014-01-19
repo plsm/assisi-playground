@@ -31,11 +31,15 @@ namespace Enki
 		public PhysicalObject
 	{
 	protected:
+		/**
+		 */
 		VibrationSource (double range, Robot* owner, Vector relativePosition, double orientation);
 		/**
 		 * Copy constructor.
 		 */
 		VibrationSource (const VibrationSource &orig);
+
+		virtual ~VibrationSource ();
 	public:
 		/**
 		 * Update absolute position of this component.
@@ -47,8 +51,6 @@ namespace Enki
 		 */
 		virtual double getAmplitude (const Point &position, double time) const = 0;
 	};
-
-	std::ostream & operator << (std::ostream & outs, const VibrationActuator &va);
 }
 
 #endif /* VIBRATION_SOURCE */

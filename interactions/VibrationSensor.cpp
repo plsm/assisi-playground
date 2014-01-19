@@ -17,6 +17,20 @@ VibrationSensor (double range, Robot* owner, Vector relativePosition, double ori
 {
 }
 
+VibrationSensor::VibrationSensor (const VibrationSensor& orig):
+	LocalInteraction (orig.LocalInteraction::r, orig.LocalInteraction::owner),
+	Component (orig),
+	maxMeasurableAmplitude (orig.maxMeasurableAmplitude),
+	maxMeasurableFrequency (orig.maxMeasurableFrequency),
+	amplitude (0),
+	frequency (0)
+{
+}
+
+VibrationSensor::~VibrationSensor ()
+{
+}
+
 void VibrationSensor::
 init (double dt, Enki::World* w)
 {

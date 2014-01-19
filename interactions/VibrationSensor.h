@@ -7,9 +7,7 @@
 
 #include <iostream>
 
-#include "../Interaction.h"
-#include "../Geometry.h"
-#include "../PhysicalEngine.h"
+#include <enki/Interaction.h>
 
 #include "../Component.h"
 
@@ -53,8 +51,14 @@ namespace Enki
 	public:
 		VibrationSensor (
 			double range, Enki::Robot* owner,
-			Enki::Vector relativePosition,
+			Enki::Vector relativePosition, double orientation,
 			 double maxMeasurableAmplitude, double maxMeasurableFrequency);
+		/**
+		 * Copy constructor.
+		 */
+		VibrationSensor (const VibrationSensor& orig);
+
+		virtual ~VibrationSensor ();
 		/**
 		 * Return the amplitude of the vibration sensed by this sensor.
 		 */
@@ -91,7 +95,6 @@ namespace Enki
 
 		virtual void finalize (double dt, Enki::World* w);
 	};
-
 
 }
 
