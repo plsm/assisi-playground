@@ -9,6 +9,7 @@
 #define __LIGHTSENSOR_H
 
 #include <enki/Interaction.h>
+
 #include "../Component.h"
 
 namespace Enki
@@ -67,7 +68,7 @@ namespace Enki
 
 
 // Local Variables: 
-// mode: c++-mode
+// mode: c++
 // mode: flyspell-prog
 // ispell-local-dictionary: "british"
 // End: 
