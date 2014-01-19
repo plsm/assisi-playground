@@ -22,6 +22,19 @@ int sign(T val)
 
 namespace Enki
 {
+	double Bee::LENGTH = 2;
+
+	double Bee::WIDTH = 0.8;
+
+	int Bee:NUMBER_LIGHT_SENSORS = 4;
+
+	const Position Bee::LIGHT_SENSOR_POSITIONS = {
+		Point (Bee::LENGTH, +Bee::WIDTH * 1.0),
+		Point (Bee::LENGTH, +Bee::WIDTH * 0.8),
+		Point (Bee::LENGTH, -Bee::WIDTH * 0.8),
+		Point (Bee::LENGTH, -Bee::WIDTH * 1.0)
+	};
+
     Bee::Bee(void) :
         DifferentialWheeled(0.4, 2, 0.0),
         range_sensors(5)
@@ -58,6 +71,8 @@ namespace Enki
                                             0, a, 10, 3731, 0, 0.7, 0);
             addLocalInteraction(range_sensors[i]);
         }
+		  for (i = 0; i < NUMBER_LIGHT_SENSORS; i++) {
+			  this->lightSensor = new LightS
     }
 
     /* virtual */
@@ -68,4 +83,9 @@ namespace Enki
             delete p;
         }
     }
+
+	void Bee::controlStep (double dt, const World *world)
+	{
+		
+	}
 }

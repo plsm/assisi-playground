@@ -21,7 +21,50 @@ namespace Enki
 	 * \ingroup robot */
 	class Bee : public DifferentialWheeled
 	{
-		const 
+		/**
+		 * A bee is modelled in Enki by parallelepiped where the length is
+		 * the distance from head to abdomen.
+		 */
+		static const double LENGTH;
+		/**
+		 * A bee is modelled in Enki by parallelepiped where the width is
+		 * the distance between closed wings.
+		 */
+		static const double WIDTH;
+		/**
+		 * Number of light sensors in a bee.
+		 */
+		static const int NUMBER_LIGHT_SENSORS;
+		/**
+		 * Light sensor positions relative to bee centre. 
+		 */
+		static const Point LIGHT_SENSOR_POSITIONS [];
+		/**
+		 * Actions that a bee can do after sensing some temperature,
+		 * vibration or light value.
+		 */
+		enum Action {APPROACH, MOVE_AWAY, NUMBER_ACTIONS};
+		/**
+		 * Stimulus that a bee reacts to
+		 */
+		enum Stimulus {LIGHT, VIBRATION};
+		/**
+		 * A simple reactive bee behaviour.  A bee may react to some value and change its behaviour.
+		 */
+		struct Behaviour
+		{
+			double minimumValue;
+			bool usesMinimumValue;
+			double maximumValue;
+			bool usesMaximumValue;
+			Action action;
+			Stimulus stimulus;
+		};
+		/**
+		 * Bee behaviour sorted from highest priority to lowest priority.
+		 */
+		const Behaviour *behaviour;
+
 	public:
         //! Create a Bee
         Bee(void);
@@ -32,10 +75,19 @@ namespace Enki
         typedef std::vector<IRSensor*> IRSensorVector;
         IRSensorVector range_sensors;
 
-		  /**
-			* Update the position of this bee.  
-			*/
-		  void step (int dt, const World *);
+		typedef std::vector<LightSensor> LightSensorVector;
+		/**
+		 * Bee light sensors.
+		 */
+		LightSensorVector lightSensors;
+
+		/**
+		 * Update the position of this bee.  
+		 */
+		void controlStep (int dt, const World *);
+
+	private:
+		void senseLight () const;
 	};
 }
 
