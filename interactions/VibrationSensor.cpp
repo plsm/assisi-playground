@@ -7,11 +7,17 @@
 using namespace Enki;
 
 VibrationSensor::
-VibrationSensor (double range, Robot* owner, Vector relativePosition, double orientation, double maxMeasurableAmplitude, double maxMeasurableFrequency):
+VibrationSensor
+	(double range, Robot* owner,
+	 Vector relativePosition, double orientation,
+	 double maxMeasurableAmplitude, double maxMeasurableFrequency, double amplitudeStandardDeviationGaussianNoise, double frequencyStandardDeviationGaussianNoise)
+	:
 	LocalInteraction (range, owner),
 	Component (owner, relativePosition, orientation), 
 	maxMeasurableAmplitude (maxMeasurableAmplitude),
 	maxMeasurableFrequency (maxMeasurableFrequency),
+	amplitudeStandardDeviationGaussianNoise (amplitudeStandardDeviationGaussianNoise),
+	frequencyStandardDeviationGaussianNoise (frequencyStandardDeviationGaussianNoise),
 	amplitude (0),
 	frequency (0)
 {
@@ -22,6 +28,8 @@ VibrationSensor::VibrationSensor (const VibrationSensor& orig):
 	Component (orig),
 	maxMeasurableAmplitude (orig.maxMeasurableAmplitude),
 	maxMeasurableFrequency (orig.maxMeasurableFrequency),
+	amplitudeStandardDeviationGaussianNoise (orig.amplitudeStandardDeviationGaussianNoise),
+	frequencyStandardDeviationGaussianNoise (orig.frequencyStandardDeviationGaussianNoise),
 	amplitude (0),
 	frequency (0)
 {
@@ -68,13 +76,15 @@ objectStep (double dt, Enki::World* w, Enki::PhysicalObject *po)
 #endif
 
 	this->amplitude += vibrationSource->getAmplitude (this->absolutePosition, dt);
-	//TODO compute frequency from wave sampling
+	this->frequency += vibrationSource->getFrequency (this->absolutePosition, dt);
 }
 
 void VibrationSensor::
 finalize (double dt, Enki::World* w)
 {
-	this->amplitude = std::min (this->amplitude, this->maxMeasurableAmplitude);
+	this->amplitude = gaussianRand (this->amplitude, this->amplitudeStandardDeviationGaussianNoise);
+	this->amplitude = std::max(-this->maxMeasurableAmplitude, std::min (this->amplitude, this->maxMeasurableAmplitude));
+	this->frequency = std::max (0.0, gaussianRand (this->frequency, this->frequencyStandardDeviationGaussianNoise));
 	this->frequency = std::min (this->frequency, this->maxMeasurableFrequency);
 }
 

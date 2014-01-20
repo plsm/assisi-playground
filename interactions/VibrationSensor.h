@@ -5,6 +5,9 @@
  * Created on 7 de Janeiro de 2014, 12:14
  */
 
+#ifndef __VIBRATION_SENSOR__
+#define __VIBRATION_SENSOR__
+
 #include <iostream>
 
 #include <enki/Interaction.h>
@@ -31,6 +34,16 @@ namespace Enki
 		 */
 		const double maxMeasurableFrequency;
 		/**
+		 * Standard deviation of the Gaussian noise that is applied to the
+		 * final perceived vibration amplitude.
+		 */
+		const double amplitudeStandardDeviationGaussianNoise;
+		/**
+		 * Standard deviation of the Gaussian noise that is applied to the
+		 * final perceived vibration frequency.
+		 */
+		const double frequencyStandardDeviationGaussianNoise;
+		/**
 		 * Measured amplitude in the current simulation iteration.
 		 *
 		 * <p> This field is set to zero at the beginning of each time step.
@@ -52,7 +65,7 @@ namespace Enki
 		VibrationSensor (
 			double range, Enki::Robot* owner,
 			Enki::Vector relativePosition, double orientation,
-			 double maxMeasurableAmplitude, double maxMeasurableFrequency);
+			 double maxMeasurableAmplitude, double maxMeasurableFrequency, double amplitudeStandardDeviationGaussianNoise, double frequencyStandardDeviationGaussianNoise);
 		/**
 		 * Copy constructor.
 		 */
@@ -97,6 +110,8 @@ namespace Enki
 	};
 
 }
+
+#endif /* __VIBRATION_SENSOR__ */
 
 
 // Local Variables: 

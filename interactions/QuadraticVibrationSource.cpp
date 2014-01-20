@@ -11,19 +11,21 @@ using namespace Enki;
 
 QuadraticVibrationSource::QuadraticVibrationSource
 	(double range, Robot* owner,
-	 Vector relativePosition, double orientation,
+	 Vector relativePosition,
 	 double a)
 	:
-	VibrationSource (range, owner, relativePosition, orientation),
+	VibrationSource (range, owner, relativePosition, OMNIDIRECTIONAL),
 	a (a),
-	amplitude (0)
+	amplitude (0),
+	frequency (0)
 {
 }
 
 QuadraticVibrationSource::QuadraticVibrationSource (const QuadraticVibrationSource& orig):
 	VibrationSource (orig),
 	a (orig.a),
-	amplitude (0)
+	amplitude (orig.amplitude),
+	frequency (orig.frequency)
 {
 }
 
@@ -35,4 +37,10 @@ double QuadraticVibrationSource::getAmplitude (const Point &position, double tim
 {
 	double squareDistance = (this->absolutePosition - position).norm2 ();
 	return this->amplitude / (this->a * squareDistance + 1);
+}
+
+double QuadraticVibrationSource::getFrequency (const Point &position, double time) const
+{
+	double squareDistance = (this->absolutePosition - position).norm2 ();
+	return this->frequency / (this->a * squareDistance + 1);
 }
