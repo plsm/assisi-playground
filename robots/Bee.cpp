@@ -32,21 +32,41 @@ namespace Enki
 
 	const int Bee::NUMBER_LIGHT_SENSORS = 4;
 
-	const double Bee::LIGHT_SENSOR_RANGE = 10;
-
 	const double Bee::LIGHT_SENSOR_WAVELENGTH = 600;
 
 	const Point Bee::LIGHT_SENSOR_POSITIONS[] = {
-		Point (Bee::LENGTH, +Bee::WIDTH * 1.0),
-		Point (Bee::LENGTH, +Bee::WIDTH * 0.8),
-		Point (Bee::LENGTH, -Bee::WIDTH * 0.8),
-		Point (Bee::LENGTH, -Bee::WIDTH * 1.0)
+		Point (Bee::LENGTH * 1.0, +Bee::WIDTH * 1.0),
+		Point (Bee::LENGTH * 0.5, +Bee::WIDTH * 0.7),
+		Point (Bee::LENGTH * 0.5, -Bee::WIDTH * 0.7),
+		Point (Bee::LENGTH * 1.0, -Bee::WIDTH * 1.0)
 	};
 
-    Bee::Bee(void) :
-        DifferentialWheeled(0.4, 2, 0.0),
-        range_sensors(5)
-    {
+	const double Bee::LIGHT_SENSOR_NOISE = 1.0;
+
+	const int Bee::NUMBER_VIBRATION_SENSORS = 6;
+
+	const double Bee::VIBRATION_SENSOR_MAX_AMPLITUDE = 100;
+
+	const double Bee::VIBRATION_SENSOR_MAX_FREQUENCY = 2;
+
+	const Point Bee::VIBRATION_SENSOR_POSITIONS[] = {
+		Point (+Bee::LENGTH * 1.0, +Bee::WIDTH * 1.0),
+		Point (+Bee::LENGTH * 0.0, +Bee::WIDTH * 1.0),
+		Point (-Bee::LENGTH * 1.0, +Bee::WIDTH * 1.0),
+		Point (+Bee::LENGTH * 1.0, -Bee::WIDTH * 1.0),
+		Point (+Bee::LENGTH * 0.0, -Bee::WIDTH * 1.0),
+		Point (-Bee::LENGTH * 1.0, -Bee::WIDTH * 1.0)
+	};
+
+	const double Bee::VIBRATION_SENSOR_NOISE_AMPLITUDE = 10.0;
+
+	const double Bee::VIBRATION_SENSOR_NOISE_FREQUENCY = 1.0;
+
+	Bee::Bee (Point *position) :
+		DifferentialWheeled(0.4, 2, 0.0),
+		range_sensors(5)
+	{
+		this->pos = *position;
         // Set shape & color
 
         double m = 1;   // Body mass
@@ -78,9 +98,15 @@ namespace Enki
         }
 		  for (i = 0; i < NUMBER_LIGHT_SENSORS; i++) {
 			  this->lightSensors [i] = new LightSensor
-				  (LIGHT_SENSOR_RANGE, this,
-					LIGHT_SENSOR_POSITIONS [i], 0,
-					LIGHT_SENSOR_WAVELENGTH);
+				  (std::numeric_limits<double>::max (), this,
+					LIGHT_SENSOR_POSITIONS [i], Component::OMNIDIRECTIONAL,
+					LIGHT_SENSOR_WAVELENGTH, LIGHT_SENSOR_NOISE);
+		  }
+		  for (i = 0; i < NUMBER_VIBRATION_SENSORS; i++) {
+			  this->vibrationSensors [i] = new VibrationSensor
+				  (std::numeric_limits<double>::max (), this,
+					VIBRATION_SENSOR_POSITIONS [i], Component::OMNIDIRECTIONAL,
+					VIBRATION_SENSOR_MAX_AMPLITUDE, VIBRATION_SENSOR_MAX_FREQUENCY, VIBRATION_SENSOR_NOISE_AMPLITUDE, VIBRATION_SENSOR_NOISE_FREQUENCY);
 		  }
     }
 
@@ -91,13 +117,42 @@ namespace Enki
         {
             delete p;
         }
+        BOOST_FOREACH(LightSensor* p, lightSensors)
+        {
+            delete p;
+        }
+        BOOST_FOREACH(VibrationSensor* p, vibrationSensors)
+        {
+            delete p;
+        }
     }
 
 	void Bee::controlStep (double dt, const World *world)
 	{
-		double intensity;
-		Vector gradient;
-		senseLight (&intensity, &gradient);
+		controlStep_reaction (dt, world);
+	}
+	void Bee::controlStep_reaction (double dt, const World *)
+	{
+		double intensity, amplitude;
+		Vector lightGradient, vibrationGradient;
+		senseLight (&intensity, &lightGradient);
+		senseVibration (&amplitude, &vibrationGradient);
+		double weightLight = lightGradient.norm2 ();
+		double weightVibration = vibrationGradient.norm2 ();
+		double rnd = uniformRand () * (weightLight + weightVibration);
+		if (rnd < weightLight) {
+			moveUp (&lightGradient);
+		}
+		else {
+			moveUp (&vibrationGradient);
+		}
+	}
+	void Bee::controlStep_behaviourBased (double dt, const World *world)
+	{
+		double intensity, amplitude;
+		Vector lightGradient, vibrationGradient;
+		senseLight (&intensity, &lightGradient);
+		senseVibration (&amplitude, &vibrationGradient);
 		bool endLoop = false;
 		for (std::vector<const BehaviourRule *>::iterator ibr =  this->behaviour.begin ();
 			  ibr != this->behaviour.end ();
@@ -110,16 +165,28 @@ namespace Enki
 					 || (rule->usesMaximumValue && (intensity <= rule->maximumValue))) {
 					switch (rule->action) {
 					case MOVE_UP:
-						moveUp (&gradient);
+						moveUp (&lightGradient);
 						break;
 					case MOVE_DOWN:
-						moveDown (&gradient);
+						moveDown (&lightGradient);
 						break;
 					}
 					endLoop = true;
 				}
 				break;
 			case VIBRATION:
+				if ((rule->usesMinimumValue && (amplitude >= rule->minimumValue))
+					 || (rule->usesMaximumValue && (amplitude <= rule->maximumValue))) {
+					switch (rule->action) {
+					case MOVE_UP:
+						moveUp (&vibrationGradient);
+						break;
+					case MOVE_DOWN:
+						moveDown (&vibrationGradient);
+						break;
+					}
+					endLoop = true;
+				}
 				break;
 			}
 			if (endLoop) {
@@ -136,7 +203,7 @@ namespace Enki
 	{
 		int i, indexMax, indexMin;
 		indexMax = 0;
-		indexMin = 1;
+		indexMin = 0;
 		*intensity = 0;
 		for (i = 0; i < NUMBER_LIGHT_SENSORS; i++) {
 			double lsi = this->lightSensors [i]->getIntensity ();
@@ -150,6 +217,26 @@ namespace Enki
 		}
 		*intensity /= NUMBER_LIGHT_SENSORS;
 		*gradient = LIGHT_SENSOR_POSITIONS [indexMax] - LIGHT_SENSOR_POSITIONS [indexMin];
+	}
+
+	void Bee::senseVibration (double *amplitude, Vector *gradient) const
+	{
+		int i, indexMax, indexMin;
+		indexMax = 0;
+		indexMin = 0;
+		*amplitude = 0;
+		for (i = 0; i < NUMBER_VIBRATION_SENSORS; i++) {
+			double lsi = this->vibrationSensors [i]->getAmplitude ();
+			if (lsi < this->vibrationSensors [indexMin]->getAmplitude ()) {
+				indexMin = i;
+			}
+			else if (lsi > this->vibrationSensors [indexMax]->getAmplitude ()) {
+				indexMax = i;
+			}
+			*amplitude += lsi;
+		}
+		*amplitude /= NUMBER_VIBRATION_SENSORS;
+		*gradient = VIBRATION_SENSOR_POSITIONS [indexMax] - VIBRATION_SENSOR_POSITIONS [indexMin];
 	}
 
 
