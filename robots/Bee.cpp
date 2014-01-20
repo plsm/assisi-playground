@@ -62,6 +62,8 @@ namespace Enki
 
 	const double Bee::VIBRATION_SENSOR_NOISE_FREQUENCY = 1.0;
 
+	const double Bee::HYSTERESIS_DECISION = 1;
+
 	Bee::Bee (Point *position) :
 		DifferentialWheeled(0.4, 2, 0.0),
 		range_sensors(5)
@@ -73,16 +75,16 @@ namespace Enki
 
         //setRectangular(len, w, h, 1);
         Polygone footprint;
-        footprint.push_back (Point (Bee::LENGTH/2,Bee::WIDTH/4));
-        footprint.push_back (Point (Bee::LENGTH/2-Bee::WIDTH/(4*sqrt(2)),Bee::WIDTH/2));
-        footprint.push_back (Point (-Bee::LENGTH/2+Bee::WIDTH/(4*sqrt(2)),Bee::WIDTH/2));
-        footprint.push_back (Point (-Bee::LENGTH/2,Bee::WIDTH/4));
-        footprint.push_back (Point (-Bee::LENGTH/2,-Bee::WIDTH/4));
-        footprint.push_back (Point (-Bee::LENGTH/2+Bee::WIDTH/(2*sqrt(2)),-Bee::WIDTH/2));
-        footprint.push_back (Point (Bee::LENGTH/2-Bee::WIDTH/(2*sqrt(2)),-Bee::WIDTH/2));
-        footprint.push_back (Point (Bee::LENGTH/2,-Bee::WIDTH/4));
-        PhysicalObject::Hull hull(PhysicalObject::Part(footprint, Bee::HEIGHT));
-        setCustomHull(hull, m);
+        footprint.push_back (Point ( Bee::LENGTH/2,                           Bee::WIDTH/4));
+        footprint.push_back (Point ( Bee::LENGTH/2 - Bee::WIDTH/(4*sqrt(2)),  Bee::WIDTH/2));
+        footprint.push_back (Point (-Bee::LENGTH/2 + Bee::WIDTH/(4*sqrt(2)),  Bee::WIDTH/2));
+        footprint.push_back (Point (-Bee::LENGTH/2,                           Bee::WIDTH/4));
+        footprint.push_back (Point (-Bee::LENGTH/2,                          -Bee::WIDTH/4));
+        footprint.push_back (Point (-Bee::LENGTH/2 + Bee::WIDTH/(2*sqrt(2)), -Bee::WIDTH/2));
+        footprint.push_back (Point ( Bee::LENGTH/2 - Bee::WIDTH/(2*sqrt(2)), -Bee::WIDTH/2));
+        footprint.push_back (Point ( Bee::LENGTH/2,                          -Bee::WIDTH/4));
+        PhysicalObject::Hull hull (PhysicalObject::Part (footprint, Bee::HEIGHT));
+        setCustomHull (hull, m);
         setColor(Color(0.93,0.79,0,1));
 
         // Set other physical properties
@@ -117,11 +119,11 @@ namespace Enki
         {
             delete p;
         }
-        BOOST_FOREACH(LightSensor* p, lightSensors)
+        BOOST_FOREACH (LightSensor* p, lightSensors)
         {
             delete p;
         }
-        BOOST_FOREACH(VibrationSensor* p, vibrationSensors)
+        BOOST_FOREACH (VibrationSensor* p, vibrationSensors)
         {
             delete p;
         }
@@ -131,28 +133,39 @@ namespace Enki
 	{
 		controlStep_reaction (dt, world);
 	}
+
 	void Bee::controlStep_reaction (double dt, const World *)
 	{
-		double intensity, amplitude;
-		Vector lightGradient, vibrationGradient;
-		senseLight (&intensity, &lightGradient);
-		senseVibration (&amplitude, &vibrationGradient);
-		double weightLight = lightGradient.norm2 ();
-		double weightVibration = vibrationGradient.norm2 ();
-		double rnd = uniformRand () * (weightLight + weightVibration);
-		if (rnd < weightLight) {
-			moveUp (&lightGradient);
-		}
-		else {
-			moveUp (&vibrationGradient);
+		this->clockDecision -= dt;
+		if (this->clockDecision < 0) {
+			this->clockDecision = Bee::HYSTERESIS_DECISION;
+			double intensity, frequency;
+			Vector lightGradient, frequencyGradient;
+			senseLight (&intensity, &lightGradient);
+			senseFrequency (&frequency, &frequencyGradient);
+			if (intensity > 1 || frequency > 1) {
+				double weightLight = lightGradient.norm2 ();
+				double weightVibration = frequencyGradient.norm2 ();
+				double rnd = uniformRand () * (weightLight + weightVibration);
+				if (rnd < weightLight) {
+					moveUp (&lightGradient);
+				}
+				else {
+					moveUp (&frequencyGradient);
+				}
+			}
+			else {
+				moveRandomly ();
+			}
 		}
 	}
+
 	void Bee::controlStep_behaviourBased (double dt, const World *world)
 	{
-		double intensity, amplitude;
-		Vector lightGradient, vibrationGradient;
+		double intensity, frequency;
+		Vector lightGradient, frequencyGradient;
 		senseLight (&intensity, &lightGradient);
-		senseVibration (&amplitude, &vibrationGradient);
+		senseFrequency (&frequency, &frequencyGradient);
 		bool endLoop = false;
 		for (std::vector<const BehaviourRule *>::iterator ibr =  this->behaviour.begin ();
 			  ibr != this->behaviour.end ();
@@ -175,14 +188,14 @@ namespace Enki
 				}
 				break;
 			case VIBRATION:
-				if ((rule->usesMinimumValue && (amplitude >= rule->minimumValue))
-					 || (rule->usesMaximumValue && (amplitude <= rule->maximumValue))) {
+				if ((rule->usesMinimumValue && (frequency >= rule->minimumValue))
+					 || (rule->usesMaximumValue && (frequency <= rule->maximumValue))) {
 					switch (rule->action) {
 					case MOVE_UP:
-						moveUp (&vibrationGradient);
+						moveUp (&frequencyGradient);
 						break;
 					case MOVE_DOWN:
-						moveDown (&vibrationGradient);
+						moveDown (&frequencyGradient);
 						break;
 					}
 					endLoop = true;
@@ -219,23 +232,23 @@ namespace Enki
 		*gradient = LIGHT_SENSOR_POSITIONS [indexMax] - LIGHT_SENSOR_POSITIONS [indexMin];
 	}
 
-	void Bee::senseVibration (double *amplitude, Vector *gradient) const
+	void Bee::senseFrequency (double *frequency, Vector *gradient) const
 	{
 		int i, indexMax, indexMin;
 		indexMax = 0;
 		indexMin = 0;
-		*amplitude = 0;
+		*frequency = 0;
 		for (i = 0; i < NUMBER_VIBRATION_SENSORS; i++) {
-			double lsi = this->vibrationSensors [i]->getAmplitude ();
-			if (lsi < this->vibrationSensors [indexMin]->getAmplitude ()) {
+			double lsi = this->vibrationSensors [i]->getFrequency ();
+			if (lsi < this->vibrationSensors [indexMin]->getFrequency ()) {
 				indexMin = i;
 			}
-			else if (lsi > this->vibrationSensors [indexMax]->getAmplitude ()) {
+			else if (lsi > this->vibrationSensors [indexMax]->getFrequency ()) {
 				indexMax = i;
 			}
-			*amplitude += lsi;
+			*frequency += lsi;
 		}
-		*amplitude /= NUMBER_VIBRATION_SENSORS;
+		*frequency /= NUMBER_VIBRATION_SENSORS;
 		*gradient = VIBRATION_SENSOR_POSITIONS [indexMax] - VIBRATION_SENSOR_POSITIONS [indexMin];
 	}
 
@@ -264,5 +277,11 @@ namespace Enki
 			this->rightSpeed = Bee::MAX_SPEED;
 			this->leftSpeed = Bee::MAX_SPEED * 0.8;
 		}
+	}
+
+	void Bee::moveRandomly ()
+	{
+		this->rightSpeed = Bee::MAX_SPEED * uniformRand ();
+		this->leftSpeed = Bee::MAX_SPEED * uniformRand ();
 	}
 }
