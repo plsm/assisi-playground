@@ -17,7 +17,7 @@ public:
 	Test (Enki::Vector location, Enki::World *world, double wavelength)
 	{
 		this->pos = location;
-		this->lightSensor = new LightSensor (20, this, Enki::Vector (0, 1), 0, wavelength);
+		this->lightSensor = new LightSensor (20, this, Enki::Vector (0, 1), 0, wavelength, 1.0);
 		this->lightSource = new LightSourceFromAbove
 			(20.0, this, Enki::Vector (0, -1), 0.0,
 			 1.0,   // k

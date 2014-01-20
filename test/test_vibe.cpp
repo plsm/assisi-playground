@@ -6,6 +6,8 @@
 #include "../interactions/VibrationSensor.h"
 #include "../interactions/QuadraticVibrationSource.h"
 
+#include "../robots/Bee.h"
+
 using namespace Enki;
 
 class Test:
@@ -16,12 +18,15 @@ public:
 
 	QuadraticVibrationSource *vibrationSource;
 
-	Test (Enki::Vector location, Enki::World *world, double amplitude)
+	Test (Enki::Vector location, Enki::World *world, double amplitude, double frequency)
 	{
 		this->pos = location;
-		this->vibrationSensor = new VibrationSensor (20, this, Enki::Vector (0, 1), 0, amplitude, -1);
+		this->vibrationSensor = new VibrationSensor
+			(20, this,
+			 Enki::Vector (0, 1), Component::OMNIDIRECTIONAL,
+			 amplitude, frequency, 1.0, 1.0);
 		this->vibrationSource = new QuadraticVibrationSource
-			(20.0, this, Enki::Vector (0, -1), 0.0,
+			(20.0, this, Enki::Vector (0, -1),
 			 1.0);   // a
 		this->vibrationSource->amplitude = amplitude;
 
@@ -48,8 +53,8 @@ int main (int argc, char *argv[])
 	// Create the world
 	Enki::World world (50, 50);
 
-	test[0] = new Test (Vector (10, 10), &world, 450);
-	test[1] = new Test (Vector (15, 10), &world, 550);
+	test[0] = new Test (Vector (10, 10), &world, 0.1, 2);
+	test[1] = new Test (Vector (15, 10), &world, 0.05, 3);
 
 	world.addObject (test[0]);
 	world.addObject (test[1]);
