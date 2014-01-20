@@ -12,17 +12,35 @@
 
 using namespace Enki;
 
-LightSensor::LightSensor (double range, Enki::Robot* owner, Enki::Vector relativePosition, double orientation, double wavelength):
+LightSensor::LightSensor
+	(double range, Enki::Robot* owner,
+	 Enki::Vector relativePosition, double orientation,
+	 double wavelength, double standardDeviationGaussianNoise)
+	:
 	LocalInteraction (range, owner),
 	Component (owner, relativePosition, orientation),
-	wavelength (wavelength)
+	wavelength (wavelength),
+	standardDeviationGaussianNoise (standardDeviationGaussianNoise)
+{
+}
+
+LightSensor::LightSensor
+	(double range, Enki::Robot* owner,
+	 Enki::Vector relativePosition,
+	 double wavelength, double standardDeviationGaussianNoise)
+	:
+	LocalInteraction (range, owner),
+	Component (owner, relativePosition, Component::OMNIDIRECTIONAL),
+	wavelength (wavelength),
+	standardDeviationGaussianNoise (standardDeviationGaussianNoise)
 {
 }
 
 LightSensor::LightSensor (const LightSensor& orig):
 	LocalInteraction (orig.LocalInteraction::r, orig.LocalInteraction::owner),
 	Component (orig),
-	wavelength (orig.wavelength)
+	wavelength (orig.wavelength),
+	standardDeviationGaussianNoise (orig.standardDeviationGaussianNoise)
 {
 }
 
@@ -51,4 +69,10 @@ objectStep (double dt, Enki::World* w, Enki::PhysicalObject *po)
 	}
 	std::cout << "light sensor interaction 3\n";
 	this->intensity += lightSource->getIntensityAt (this->absolutePosition, this->wavelength);
+}
+
+void LightSensor::
+finalize (double dt, World* w)
+{
+	this->intensity = std::max (0.0, gaussianRand (this->intensity, this->standardDeviationGaussianNoise));
 }

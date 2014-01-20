@@ -16,6 +16,9 @@ namespace Enki
 {
 	/**
 	 * A light sensor that reacts maximally to a single wavelength.
+	 *
+	 * <p> This light sensor can perceive light in any direction, so it does not
+	 * have any specific orientation.
 
 	 * <p> Light sensors only interact with {@code LightSource} objects.  We
 	 * measure the {@code LightSource}'s intensity at the {@code
@@ -32,11 +35,24 @@ namespace Enki
 		 * Wavelength that this light sensor reacts maximally.
 		 */
 		const double wavelength;
+		/**
+		 * Standard deviation of the Gaussian noise that is applied to every
+		 * perceived light intensity.
+		 */
+		const double standardDeviationGaussianNoise;
 	public:
 		/**
 		 * Construct a light sensor that reacts maximally to the given wavelength.
 		 */
-		LightSensor (double range, Enki::Robot* owner, Enki::Vector relativePosition, double orientation, double wavelength);
+		LightSensor (double range, Enki::Robot* owner,
+			Enki::Vector relativePosition, double orientation,
+			double wavelength, double standardDeviationGaussianNoise);
+		/**
+		 * Construct a light sensor that reacts maximally to the given wavelength.
+		 */
+		LightSensor (double range, Enki::Robot* owner,
+			Enki::Vector relativePosition,
+			double wavelength, double standardDeviationGaussianNoise);
 		/**
 		 * Copy constructor.
 		 */
@@ -52,6 +68,10 @@ namespace Enki
 		 * object.
 		 */
 		virtual void objectStep (double dt, Enki::World* w, Enki::PhysicalObject *po);
+		/**
+		 * Apply gaussian noise to the perceived intensity.
+		 */
+		virtual void finalize (double dt, World* w);
 		/**
 		 * Get the light intensity measured by this light sensor.
 		 */
