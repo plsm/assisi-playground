@@ -59,11 +59,11 @@ int main (int argc, char *argv[])
 	world.addObject (test[0]);
 	world.addObject (test[1]);
 	debug (-1);
-	for (int it = 0; it < 3; it++) {
+	for (int it = 0; it < 30; it++) {
 		world.step (0.05);
 		debug (it);
 	}
-	sampleVibrationIntensity (&world, 50, 450);
+	// sampleVibrationIntensity (&world, 50, 450);
 	return 0;
 }
 
@@ -80,7 +80,7 @@ void sampleVibrationIntensity (Enki::World *world, unsigned int numberSamples, d
 			for (World::ObjectsIterator object = world->objects.begin (); object != world->objects.end (); ++object) {
 				VibrationSource *vibrationSource = dynamic_cast<VibrationSource *>(*object);
 				if (vibrationSource != NULL) {
-					intensity += vibrationSource->getAmplitude (position, time);
+					intensity += vibrationSource->getAmplitudeAt (position, time);
 				}
 			}
 			std::cout << '\t' << intensity;
@@ -95,6 +95,7 @@ void debug (int time)
 	for (int i = 0; i < 2; i++) {
 		std::cout << '\t' << test [i]->pos;
 		std::cout << '\t' << test [i]->vibrationSensor->getAmplitude ();
+		std::cout << '\t' << test [i]->vibrationSource->pos;
 		std::cout << '\t' << test [i]->vibrationSource->amplitude;
 	}
 

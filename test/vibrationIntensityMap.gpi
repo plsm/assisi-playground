@@ -1,0 +1,40 @@
+set terminal pdf
+set terminal png enhanced large size 600, 600
+set size ratio -1
+set xrange [0 : 0.5]
+set yrange [0 : 0.5]
+set xtics mirror autofreq
+set ytics mirror autofreq
+set title 'vibration intensity map'
+set output 'vibrationIntensityMap.png'
+set arrow from 0.23366, 0.23 to 0.225, 0.235 nohead
+set arrow from 0.225, 0.235 to 0.21634, 0.23 nohead
+set arrow from 0.21634, 0.23 to 0.21634, 0.22 nohead
+set arrow from 0.21634, 0.22 to 0.225, 0.215 nohead
+set arrow from 0.225, 0.215 to 0.23366, 0.22 nohead
+set arrow from 0.23366, 0.22 to 0.23366, 0.23 nohead
+set arrow from 0.43366, 0.43 to 0.425, 0.435 nohead
+set arrow from 0.425, 0.435 to 0.41634, 0.43 nohead
+set arrow from 0.41634, 0.43 to 0.41634, 0.42 nohead
+set arrow from 0.41634, 0.42 to 0.425, 0.415 nohead
+set arrow from 0.425, 0.415 to 0.43366, 0.42 nohead
+set arrow from 0.43366, 0.42 to 0.43366, 0.43 nohead
+set arrow from 0.23366, 0.43 to 0.225, 0.435 nohead
+set arrow from 0.225, 0.435 to 0.21634, 0.43 nohead
+set arrow from 0.21634, 0.43 to 0.21634, 0.42 nohead
+set arrow from 0.21634, 0.42 to 0.225, 0.415 nohead
+set arrow from 0.225, 0.415 to 0.23366, 0.42 nohead
+set arrow from 0.23366, 0.42 to 0.23366, 0.43 nohead
+set arrow from 0.43366, 0.23 to 0.425, 0.235 nohead
+set arrow from 0.425, 0.235 to 0.41634, 0.23 nohead
+set arrow from 0.41634, 0.23 to 0.41634, 0.22 nohead
+set arrow from 0.41634, 0.22 to 0.425, 0.215 nohead
+set arrow from 0.425, 0.215 to 0.43366, 0.22 nohead
+set arrow from 0.43366, 0.22 to 0.43366, 0.23 nohead
+set parametric
+plot 'vibrationAmplitudeMap.txt' using 1:2:3 with image notitle, \
+  0.225 + 0.03 * cos(t), 0.225 + 0.03 * sin(t) notitle with lines lc -1 lw 3, \
+  0.425 + 0.03 * cos(t), 0.425 + 0.03 * sin(t) notitle with lines lc -1 lw 3, \
+  0.225 + 0.03 * cos(t), 0.425 + 0.03 * sin(t) notitle with lines lc -1 lw 3, \
+  0.425 + 0.03 * cos(t), 0.225 + 0.03 * sin(t) notitle with lines lc -1 lw 3
+

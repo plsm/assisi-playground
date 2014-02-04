@@ -23,9 +23,9 @@ public:
 			 1.0,   // k
 			 9.0,     // radius
 			 wavelength,
-			 100.0,   // max intensity
 			 1.0);    // sigma
 
+		this->lightSource->intensity = 100;
 		// turn the actuators to point objects so that they don't move
 		this->lightSource->setCylindric (0, 0, -1);
 

@@ -1,0 +1,17 @@
+maxIntensity = 100
+radius = 50
+peakWavelength = 450
+sigma = 1
+k = 10000
+k = 0.0001
+
+intensity(distance, wavelength) = \
+                    maxIntensity \
+                    * (-tanh(k * distance - radius) + 1) / 2 \
+                    * exp (-(wavelength - peakWavelength)**2 / (2 * sigma**2))
+
+splot [-100:100][-100:100] intensity(x**2+y**2, 450)
+
+pause mouse "Click to continue"
+
+plot tanh(x) with lines

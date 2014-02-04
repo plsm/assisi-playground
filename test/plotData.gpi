@@ -1,0 +1,68 @@
+set terminal png enhanced large size 1200, 800
+set output 'bees-config-4-CASU-vibe-light.png'
+set xrange [-0.05 : 0.55]
+set yrange [-0.05 : 0.55]
+set xtics mirror 0, 0.5
+set ytics mirror 0, 0.5
+set size ratio -1
+set multiplot layout 2,2 title 'config-4-CASU-vibe-light.txt'
+set arrow from 0.23366, 0.23 to 0.225, 0.235 nohead
+set arrow from 0.225, 0.235 to 0.21634, 0.23 nohead
+set arrow from 0.21634, 0.23 to 0.21634, 0.22 nohead
+set arrow from 0.21634, 0.22 to 0.225, 0.215 nohead
+set arrow from 0.225, 0.215 to 0.23366, 0.22 nohead
+set arrow from 0.23366, 0.22 to 0.23366, 0.23 nohead
+set arrow from 0.43366, 0.43 to 0.425, 0.435 nohead
+set arrow from 0.425, 0.435 to 0.41634, 0.43 nohead
+set arrow from 0.41634, 0.43 to 0.41634, 0.42 nohead
+set arrow from 0.41634, 0.42 to 0.425, 0.415 nohead
+set arrow from 0.425, 0.415 to 0.43366, 0.42 nohead
+set arrow from 0.43366, 0.42 to 0.43366, 0.43 nohead
+set arrow from 0.23366, 0.43 to 0.225, 0.435 nohead
+set arrow from 0.225, 0.435 to 0.21634, 0.43 nohead
+set arrow from 0.21634, 0.43 to 0.21634, 0.42 nohead
+set arrow from 0.21634, 0.42 to 0.225, 0.415 nohead
+set arrow from 0.225, 0.415 to 0.23366, 0.42 nohead
+set arrow from 0.23366, 0.42 to 0.23366, 0.43 nohead
+set arrow from 0.43366, 0.23 to 0.425, 0.235 nohead
+set arrow from 0.425, 0.235 to 0.41634, 0.23 nohead
+set arrow from 0.41634, 0.23 to 0.41634, 0.22 nohead
+set arrow from 0.41634, 0.22 to 0.425, 0.215 nohead
+set arrow from 0.425, 0.215 to 0.43366, 0.22 nohead
+set arrow from 0.43366, 0.22 to 0.43366, 0.23 nohead
+set arrow from 0.018, 0.0420789 to 0.0165858, 0.0440789 nohead
+set arrow from 0.0165858, 0.0440789 to 0.00341421, 0.0440789 nohead
+set arrow from 0.00341421, 0.0440789 to 0.002, 0.0420789 nohead
+set arrow from 0.002, 0.0420789 to 0.002, 0.0380789 nohead
+set arrow from 0.002, 0.0380789 to 0.00482843, 0.0360789 nohead
+set arrow from 0.00482843, 0.0360789 to 0.0151716, 0.0360789 nohead
+set arrow from 0.0151716, 0.0360789 to 0.018, 0.0380789 nohead
+set arrow from 0.018, 0.0380789 to 0.018, 0.0420789 nohead
+set parametric
+set title 'CASU arena'
+plot 1/0,1/0 notitle, \
+  0.225 + 0.03 * cos(t), 0.225 + 0.03 * sin(t) notitle with lines lc 1, \
+  0.425 + 0.03 * cos(t), 0.425 + 0.03 * sin(t) notitle with lines lc 1, \
+  0.225 + 0.03 * cos(t), 0.425 + 0.03 * sin(t) notitle with lines lc 1, \
+  0.425 + 0.03 * cos(t), 0.225 + 0.03 * sin(t) notitle with lines lc 1, \
+  'output.txt' using 10:11 notitle with lines, \
+  'output.txt' using 10:11 notitle with points pt 0
+set xrange [0 : 0.5]
+set yrange [0 : 0.5]
+set xtics mirror autofreq
+set ytics mirror autofreq
+set title 'light intensity map 450'
+plot 'lightIntensityMap.txt' using 1:2:3 with image notitle
+set title 'vibration intensity map'
+plot 'vibrationAmplitudeMap.txt' using 1:2:3 with image notitle
+set title 'sensed alpha vibration intensity gradient'
+set size ratio 1 0.5, 0.5
+set xrange [0:*]
+set xtics auto
+set xlabel 'time'
+set yrange [-180:180]
+set ylabel 'angle'
+set ytics auto
+plot 1/0,1/0 notitle, \
+  'output.txt' using 1:($14*45/atan(1)) title 'bee 0' with lines
+unset multiplot
