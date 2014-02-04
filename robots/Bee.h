@@ -8,7 +8,7 @@
 #include <enki/interactions/IRSensor.h>
 
 #include "../interactions/LightSensor.h"
-#include "../interactions/VibrationSensor.h"
+#include "../interactions/VibrationIntensitySensor.h"
 	
 namespace Enki
 {
@@ -27,6 +27,7 @@ namespace Enki
 	 * \ingroup robot */
 	class Bee : public DifferentialWheeled
 	{
+	public:
 		/**
 		 * A bee is modelled in Enki by parallelepiped where the length is
 		 * the distance from head to abdomen.
@@ -70,6 +71,12 @@ namespace Enki
 		 * Vibration sensor positions relative to bee centre. 
 		 */
 		static const Point VIBRATION_SENSOR_POSITIONS [];
+
+		static const double VIBRATION_INTENSITY_SENSOR_MIN_MEASURABLE_INTENSITY;
+
+		static const double VIBRATION_INTENSITY_SENSOR_MAX_MEASURABLE_INTENSITY;
+
+		static const double VIBRATION_INTENSITY_SENSOR_NOISE;
 		/**
 		 * Maximum perceived vibration amplitude.
 		 */
@@ -86,6 +93,7 @@ namespace Enki
 		 * Bee's vibration sensors Gaussian noise.
 		 */
 		static const double VIBRATION_SENSOR_NOISE_FREQUENCY;
+	private:
 		/**
 		 * Actions that a bee can do after sensing some temperature,
 		 * vibration or light value.  The bee senses some gradient, and can
@@ -149,18 +157,19 @@ namespace Enki
 		 * World*)} method call.
 		 */
 		double clockDecision;
-
+	public:
+		double vibrationGradientAlpha;
 		typedef std::vector<LightSensor *> LightSensorVector;
 		/**
 		 * Bee light sensors.
 		 */
 		LightSensorVector lightSensors;
 
-		typedef std::vector<VibrationSensor *> VibrationSensorVector;
+		typedef std::vector<VibrationIntensitySensor *> VibrationIntensitySensorVector;
 		/**
 		 * Bee vibration sensors.
 		 */
-		VibrationSensorVector vibrationSensors;
+		VibrationIntensitySensorVector vibrationSensors;
 	public:
 		//! Create a Bee
 		Bee (Point *position);
@@ -208,7 +217,7 @@ namespace Enki
 		 * point where it sensed the lowest value to the point where it
 		 * sensed the highest value.
 		 */
-		void senseLight (double *intensity, Vector *gradient) const;
+		void senseLight (double *intensity, Vector *gradient, double *min, double *max) const;
 		/**
 		 * Compute the vibration frequency perceived by the bee and its
 		 * gradient.
@@ -219,14 +228,14 @@ namespace Enki
 		 * the point where it sensed the lowest value to the point where it
 		 * sensed the highest value.
 		 */
-		void senseFrequency (double *frequency, Vector *gradient) const;
+		void senseVibration (double *vibration, Vector *gradient, double *min, double *max);
 		/**
 		 * Update motor speeds in order to climb the given gradient.
 		 *
 		 *  @param gradient Vector representing the gradient increasing
 		 * direction.
 		 */
-		void moveUp (const Vector *gradient);
+		void moveUp (const Vector *gradient, double curveness);
 		/**
 		 * Update motor speeds in order to descend the given gradient.
 		 *
