@@ -7,6 +7,8 @@
 
 #include "QuadraticVibrationSource.h"
 
+#include "NotSimulated.h"
+
 using namespace Enki;
 
 QuadraticVibrationSource::QuadraticVibrationSource
@@ -33,13 +35,12 @@ QuadraticVibrationSource::~QuadraticVibrationSource()
 {
 }
 
-double QuadraticVibrationSource::getAmplitude (const Point &position, double time) const
+double QuadraticVibrationSource::getAmplitudeAt (const Point &position, double time) const
 {
-	double squareDistance = (this->absolutePosition - position).norm2 ();
-	return this->amplitude / (this->a * squareDistance + 1);
+	throw new NotSimulated ();
 }
 
-double QuadraticVibrationSource::getFrequency (const Point &position, double time) const
+double QuadraticVibrationSource::getIntensityAt (const Point &position) const
 {
 	double squareDistance = (this->absolutePosition - position).norm2 ();
 	return this->frequency / (this->a * squareDistance + 1);

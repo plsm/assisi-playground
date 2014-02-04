@@ -50,12 +50,12 @@ namespace Enki
 		 * Return the vibration amplitude produced by this source at the
 		 * given position and time.
 		 */
-		virtual double getAmplitude (const Point &position, double time) const = 0;
+		virtual double getAmplitudeAt (const Point &position, double time) const = 0;
 		/**
-		 * Return the vibration frequency produced by this source at the
+		 * Return the vibration intensity produced by this source at the
 		 * given position and time.
 		 */
-		virtual double getFrequency (const Point &position, double time) const = 0;
+		virtual double getIntensityAt (const Point &position) const = 0;
 	};
 }
 

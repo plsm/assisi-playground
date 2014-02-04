@@ -75,17 +75,22 @@ objectStep (double dt, Enki::World* w, Enki::PhysicalObject *po)
 		<< '\n';
 #endif
 
-	this->amplitude += vibrationSource->getAmplitude (this->absolutePosition, dt);
-	this->frequency += vibrationSource->getFrequency (this->absolutePosition, dt);
+	double value;
+	value = vibrationSource->getAmplitudeAt (this->absolutePosition, dt);
+	value = gaussianRand (value, fabs (value * this->amplitudeStandardDeviationGaussianNoise));
+	this->amplitude += value;
+	value = vibrationSource->getFrequencyAt (this->absolutePosition, dt);
+	value = gaussianRand (value, value * this->frequencyStandardDeviationGaussianNoise);
+	this->frequency += value;
 }
 
 void VibrationSensor::
 finalize (double dt, Enki::World* w)
 {
-	this->amplitude = gaussianRand (this->amplitude, this->amplitudeStandardDeviationGaussianNoise);
-	this->amplitude = std::max(-this->maxMeasurableAmplitude, std::min (this->amplitude, this->maxMeasurableAmplitude));
-	this->frequency = std::max (0.0, gaussianRand (this->frequency, this->frequencyStandardDeviationGaussianNoise));
-	this->frequency = std::min (this->frequency, this->maxMeasurableFrequency);
+	// this->amplitude = gaussianRand (this->amplitude, this->amplitudeStandardDeviationGaussianNoise);
+	this->amplitude = std::max (-this->maxMeasurableAmplitude, std::min (this->amplitude, this->maxMeasurableAmplitude));
+	// this->frequency = gaussianRand (this->frequency, this->frequencyStandardDeviationGaussianNoise);
+	this->frequency = std::max (0.0, std::min (this->frequency, this->maxMeasurableFrequency));
 }
 
 

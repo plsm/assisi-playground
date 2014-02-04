@@ -2,11 +2,11 @@
  * File:   VibrationSensor.h
  * Author: Pedro Mariano
  *
- * Created on 7 de Janeiro de 2014, 12:14
+ * Created on 21 de Janeiro de 2014, 12:14
  */
 
-#ifndef __VIBRATION_SENSOR__
-#define __VIBRATION_SENSOR__
+#ifndef __VIBRATION_INTENSITY_SENSOR__
+#define __VIBRATION_INTENSITY_SENSOR__
 
 #include <iostream>
 
@@ -21,70 +21,49 @@ namespace Enki
 	 *
 	 * @author Pedro Mariano
 	 */
-	class VibrationSensor
+	class VibrationIntensitySensor
 		: public LocalInteraction,
 		  public Component
 	{
 		/**
 		 * Maximum measurable amplitude of this sensor.
 		 */
-		const double maxMeasurableAmplitude;
+		const double maxMeasurableIntensity;
 		/**
 		 * Maximum measurable frequency of this sensor.
 		 */
-		const double maxMeasurableFrequency;
+		const double minMeasurableIntensity;
 		/**
 		 * Standard deviation of the Gaussian noise that is applied to each
-		 * perceived vibration amplitude.
+		 * perceived vibration intensity.
 		 */
-		const double amplitudeStandardDeviationGaussianNoise;
+		const double standardDeviationGaussianNoise;
 		/**
-		 * Standard deviation of the Gaussian noise that is applied to each
-		 * perceived vibration frequency.
-		 */
-		const double frequencyStandardDeviationGaussianNoise;
-		/**
-		 * Measured amplitude in the current simulation iteration.
+		 * Measured vibration intensity in the current simulation iteration.
 		 *
 		 * <p> This field is set to zero at the beginning of each time step.
 		 * For each object that is a vibration actuator we update this
 		 * attribute with the sensed vibration according to the vibration
 		 * model.
 		 */
-		double amplitude;
-		/**
-		 * Measured frequency in the current simulation iteration.
-		 *
-		 * <p> This field is set to zero at the beginning of each time step.
-		 * For each object that is a vibration actuator we update this
-		 * attribute with the sensed vibration according to the vibration
-		 * model.
-		 */
-		double frequency;
+		double intensity;
 	public:
-		VibrationSensor (
+		VibrationIntensitySensor (
 			double range, Enki::Robot* owner,
-			Enki::Vector relativePosition, double orientation,
-			 double maxMeasurableAmplitude, double maxMeasurableFrequency, double amplitudeStandardDeviationGaussianNoise, double frequencyStandardDeviationGaussianNoise);
+			Enki::Vector relativePosition,
+			double minMeasurableIntensity, double maxMeasurableIntensity, double standardDeviationGaussianNoise);
 		/**
 		 * Copy constructor.
 		 */
-		VibrationSensor (const VibrationSensor& orig);
+		VibrationIntensitySensor (const VibrationIntensitySensor& orig);
 
-		virtual ~VibrationSensor ();
+		virtual ~VibrationIntensitySensor ();
 		/**
 		 * Return the amplitude of the vibration sensed by this sensor.
 		 */
-		double getAmplitude () const
+		double getIntensity () const
 		{
-			return this->amplitude;
-		}
-		/**
-		 * Return the frequency of the vibration sensed by this sensor.
-		 */
-		double getFrequency () const
-		{
-			return this->frequency;
+			return this->intensity;
 		}
 		/**
 		 * Initialise the measured amplitude and frequency in the current
@@ -104,9 +83,6 @@ namespace Enki
 		 * @param w world where the interaction takes place.
 		 */
 		virtual void objectStep (double dt, Enki::World* w, Enki::PhysicalObject *po);
-
-
-		virtual void finalize (double dt, Enki::World* w);
 	};
 
 }
