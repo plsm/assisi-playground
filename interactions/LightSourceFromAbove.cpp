@@ -12,13 +12,13 @@ using namespace Enki;
 LightSourceFromAbove::LightSourceFromAbove
 	(double range, Robot* owner,
 	 Vector relativePosition, double orientation,
-	 double k, double radius, double peakWavelength, double maxIntensity, double sigma)
+	 double k, double radius, double peakWavelength, double sigma)
 	:
 	LightSource (range, owner, relativePosition, orientation),
 	k (k),
 	radius (radius),
 	peakWavelength (peakWavelength),
-	maxIntensity (maxIntensity),
+	// maxIntensity (maxIntensity),
 	sigma (sigma)
 {
 }
@@ -28,7 +28,7 @@ LightSourceFromAbove::LightSourceFromAbove (const LightSourceFromAbove& orig):
 	k (orig.k),
 	radius (orig.radius),
 	peakWavelength (orig.peakWavelength),
-	maxIntensity (orig.maxIntensity),
+	// maxIntensity (orig.maxIntensity),
 	sigma (orig.sigma)
 	// C11 feature
 	// LightSourceFromAbove (orig.r, orig.LocalInteraction::owner,
@@ -52,7 +52,7 @@ getIntensityAt (const Point& position, double wavelength) const
 {
 	double distance = (absolutePosition - position).norm ();
 	double wavelengthDiff = peakWavelength - wavelength;
-	return maxIntensity
+	return this->intensity
 		* (-tanh (k * distance - radius) + 1) / 2
 		* exp (-wavelengthDiff * wavelengthDiff / 2 / sigma / sigma);
 }

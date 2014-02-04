@@ -16,6 +16,8 @@ namespace Enki {
 	 * A light source that emits from above and is not obscured by objects
 	 * in the world.  The light model is defined in
 	 * http://larics.rasip.fer.hr/assisiwiki/doku.php?id=software:simulators
+
+	 * <p> The user can control the light intensity.
 	 */
 	class LightSourceFromAbove:
 		public LightSource
@@ -33,19 +35,20 @@ namespace Enki {
 		 */
 		const double peakWavelength;
 		/**
-		 * Maximum intensity of this light source.
-		 */
-		const double maxIntensity;
-		/**
 		 * Shaping coefficient of the Gaussian model.
 		 */
 		const double sigma;
 	public:
 		/**
+		 * Current intensity of this light source.
+		 */
+		double intensity;
+	public:
+		/**
 		 * Construct a light source from above with the given parameters.
 		 */
 		LightSourceFromAbove (double range, Robot* owner, Vector relativePosition, double orientation,
-			double k, double radius, double peakWavelength, double maxIntensity,
+			double k, double radius, double peakWavelength,
 			double sigma);
 		/**
 		 * Copy constructor.
