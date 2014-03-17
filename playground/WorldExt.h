@@ -14,6 +14,7 @@
 
 #include "PhysicalEngine.h"
 
+#include "ExtendedWorld.h"
 #include "handlers/ObjectHandler.h"
 
 namespace Enki
@@ -23,7 +24,7 @@ namespace Enki
     /*!
 
      */
-    class WorldExt : public World
+    class WorldExt : public ExtendedWorld
     {
         
     public:

@@ -20,6 +20,7 @@ namespace Enki
 	class WorldHeat :
 		public PhysicSimulation
 	{
+	public:
 		/**
 		 * Normal environmental heat used to compute heat at world borders.
 		 */
@@ -28,13 +29,27 @@ namespace Enki
 		 * Length in world coordinates of a grid point.
 		 */
 		const double gridScale;
+	private:
 		/**
 		 * Distance between world limits and environment.
 		 */
 		const double borderSize;
+		/**
+		 * Cellular automaton size.
+		 */
 		Enki::Vector size;
+		/**
+		 * Smallest world coordinates of cell (0,0) in the cellular automaton.
+		 */
 		Enki::Vector origin;
+		/**
+		 * Heat cellular automata.  One contains the heat in the current
+		 * iteration while the other is used to computed the next state.
+		 */
 		std::vector<std::vector<double> > heat [2];
+		/**
+		 * Index to the current cellular automaton in field {@code heat}.
+		 */
 		int adtIndex;
 	public:
 		static const double THERMAL_DIFFUSIVITY_AIR;
