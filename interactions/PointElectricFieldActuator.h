@@ -6,7 +6,7 @@
  */
 
 #ifndef ELECTRICFIELDACTUATOR_H
-#define	ELECTRICFIELDACTUATOR_H
+#define ELECTRICFIELDACTUATOR_H
 
 #include "AbstractElectricFieldActuator.h"
 
@@ -25,8 +25,8 @@ namespace Enki {
 		PointElectricFieldActuator (const PointElectricFieldActuator& orig);
 		virtual ~PointElectricFieldActuator();
 	public:
-		virtual void init (double dt, World *w);
-		virtual void measureAt (const Point &, double *value, Point *direction);
+		virtual void init (double dt, PhysicSimulation *w);
+		virtual void measureAt (const Point &, double *value, Point *direction) const;
 
 	};
 }

@@ -11,6 +11,11 @@
 
 using namespace Enki;
 
+/**
+ * Modelo baseado na intensidade e frequência e decai com o quadrado da
+ * distância.
+
+ */
 PointElectricFieldActuator::
 PointElectricFieldActuator (
 	Robot *owner, Vector relativePosition,
@@ -34,14 +39,14 @@ PointElectricFieldActuator::~PointElectricFieldActuator ()
 }
 
 void PointElectricFieldActuator::
-init (double dt, World *w)
+init (double dt, PhysicSimulation *w)
 {
-	std::cout << "PointElectricFieldActuator::init()\n";
+	// std::cout << "PointElectricFieldActuator::init()\n";
 	Component::init ();
 }
 		
 void PointElectricFieldActuator::
-measureAt (const Point &position, double *value, Point *direction)
+measureAt (const Point &position, double *value, Point *direction) const
 {
 	//	std::cout << "Measure at " << this->absolutePosition << "\n";
 	if (this->switchedOn) {

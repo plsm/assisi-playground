@@ -6,6 +6,7 @@
  */
 
 #include "AbstractElectricFieldActuator.h"
+#include "WorldElectricField.h"
 
 using namespace Enki;
 
@@ -18,8 +19,8 @@ AbstractElectricFieldActuator (
 	double relativeOrientation
 ):
 	Component (owner, relativePosition, relativeOrientation),
-	GlobalInteraction (GlobalInteraction::owner),
-	switchedOn (true)
+	PhysicInteraction (owner),
+	switchedOn (false)
 {
 }
 
@@ -28,7 +29,7 @@ AbstractElectricFieldActuator (
 	const AbstractElectricFieldActuator& orig
 ):
 	Component (orig),
-	GlobalInteraction (orig.GlobalInteraction::owner),
+	PhysicInteraction (orig),
 	switchedOn (orig.switchedOn)
 {
 }
@@ -42,4 +43,17 @@ void AbstractElectricFieldActuator::
 toogle ()
 {
 	this->switchedOn = !this->switchedOn;
+}
+
+void AbstractElectricFieldActuator::
+step (double dt, PhysicSimulation *ps)
+{
+	if (this->switchedOn) {
+		WorldElectricField *worldElectricField = dynamic_cast<WorldElectricField *> (ps);
+		if (worldElectricField != NULL) {
+			if (this->switchedOn) {
+				worldElectricField->addSource (this);
+			}
+		}
+	}
 }

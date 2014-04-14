@@ -5,7 +5,13 @@ set(enki_INCLUDE_DIR /usr/local/include/enki)
 set(enki_LIBRARIES /usr/local/lib/libenki.a
                    /usr/local/lib/libenkiviewer.a)
 
-find_package(ZeroMQ REQUIRED)
+#find_package(ZeroMQ REQUIRED)
+set(ZeroMQ_INCLUDE_DIR /home/pedro/other/xSearch/projects/ASSISIbf/local/include/)
+set(ZeroMQ_LIBRARIES /home/pedro/other/xSearch/projects/ASSISIbf/local/lib/libzmq.a
+  /home/pedro/other/xSearch/projects/ASSISIbf/local/lib/libzmq.so)
+set(ZeroMQ_LIBRARY /home/pedro/other/xSearch/projects/ASSISIbf/local/lib/libzmq.a
+  /home/pedro/other/xSearch/projects/ASSISIbf/local/lib/libzmq.so)
+
 
 # boost::for_each is used within WorldExt
 find_package(Boost REQUIRED)
@@ -21,6 +27,7 @@ set(PROTOBUF_IMPORT_DIRS ${PROTOBUF_IMPORT_DIRS}
 PROTOBUF_GENERATE_CPP(ProtoSources ProtoHeaders ${Proto_FILES})
 
 include_directories (${CMAKE_SOURCE_DIR}
+	${CMAKE_SOURCE_DIR}/..
                      ${CMAKE_BINARY_DIR}/playground
                      ${enki_INCLUDE_DIR}
                      ${ZeroMQ_INCLUDE_DIR})
@@ -56,16 +63,43 @@ include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
 
 # The ASSISI playground
-set(playground_SOURCES AssisiPlaygroundMain.cpp
-                       AssisiPlayground.cpp
-                       WorldExt.cpp
-                       ../robots/Casu.cpp
-                       ../robots/Bee.cpp
-                       ../handlers/EPuckHandler.cpp
-                       ../handlers/CasuHandler.cpp
-                       ../handlers/PhysicalObjectHandler.cpp
-                       ../handlers/BeeHandler.cpp
-                       ${ProtoSources})
+set(playground_SOURCES
+  AssisiPlaygroundMain.cpp
+  AssisiPlayground.cpp
+  WorldExt.cpp
+  ../robots/Casu.cpp
+  ../robots/Bee.cpp
+  ../handlers/EPuckHandler.cpp
+  ../handlers/CasuHandler.cpp
+  ../handlers/PhysicalObjectHandler.cpp
+  ../handlers/BeeHandler.cpp
+
+  ../Component.cpp
+  ../ExtendedRobot.cpp
+  ../ExtendedWorld.cpp
+  ../PhysicSimulation.cpp
+#  ../interactions/AbstractGridSimulation.cpp
+
+  ../interactions/WorldHeat.cpp
+  ../interactions/HeatSensor.cpp
+  ../interactions/HeatActuator.cpp
+
+  ../interactions/WorldElectricField.cpp
+  ../interactions/AbstractElectricFieldActuator.cpp
+  ../interactions/PointElectricFieldActuator.cpp
+
+  ../interactions/WorldLight.cpp
+  ../interactions/LightSensor.cpp
+  ../interactions/LightSource.cpp
+  ../interactions/LightSourceFromAbove.cpp
+
+  ../interactions/VibrationIntensitySensor.cpp
+  ../interactions/VibrationSource.cpp
+  ../interactions/QuadraticVibrationSource.cpp
+
+  ../Component.cpp
+
+  ${ProtoSources})
 
 # For MOC-ing
 set(playground_QT_HEADERS AssisiPlayground.h)

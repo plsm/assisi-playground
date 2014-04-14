@@ -50,7 +50,7 @@ init (double dt, Enki::World* w)
 double LightSourceFromAbove::
 getIntensityAt (const Point& position, double wavelength) const
 {
-	double distance = (absolutePosition - position).norm ();
+	double distance = (absolutePosition - position).norm () / 100;
 	double wavelengthDiff = peakWavelength - wavelength;
 	return this->intensity
 		* (-tanh (k * distance - radius) + 1) / 2

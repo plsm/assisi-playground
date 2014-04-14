@@ -6,6 +6,7 @@
  */
 
 #include "LightSource.h"
+#include "WorldLight.h"
 
 using namespace Enki;
 
@@ -23,4 +24,19 @@ LightSource (const LightSource &orig):
 	LocalInteraction (orig.LocalInteraction::r, orig.LocalInteraction::owner),
 	Component (orig)
 {
+}
+
+void LightSource::
+init (double dt, PhysicSimulation* ps)
+{
+	Component::init ();
+}
+
+void LightSource::
+step (double dt, PhysicSimulation *ps)
+{
+	WorldLight *worldLight = dynamic_cast<WorldLight *> (ps);
+	if (worldLight != NULL) {
+		worldLight->addSource (this);
+	}
 }

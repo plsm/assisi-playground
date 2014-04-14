@@ -32,6 +32,8 @@ namespace Enki
 	const Point Casu::VIBRATION_SOURCE_RELATIVE_POSITION (0, 0);
 	const double Casu::VIBRATION_SOURCE_A = 1.0;
 
+	const double Casu::MAX_HEAT = 40;
+
 	Casu::Casu (World *world, Point *position) :
 		range_sensors(6)
 	{
@@ -44,6 +46,7 @@ namespace Enki
 		this->lightSource->setCylindric (0, 0, -1); // turn the actuators to point objects so that they don't move
 		addLocalInteraction (this->lightSource);
 		world->addObject (this->lightSource);
+		this->addPhysicInteraction (this->lightSource);
 
 		this->vibrationSource = new QuadraticVibrationSource
 			(VIBRATION_SOURCE_RANGE, this,
@@ -51,6 +54,15 @@ namespace Enki
 		this->vibrationSource->setCylindric (0, 0, -1); // turn the actuators to point objects so that they don't move
 		addLocalInteraction (this->vibrationSource);
 		world->addObject (this->vibrationSource);
+
+		this->heatActuator = new HeatActuator (this, Vector (0, 0), MAX_HEAT);
+		this->heatActuator->switchedOn = true;
+		this->addPhysicInteraction (this->heatActuator);
+
+		this->electricFieldActuator = new PointElectricFieldActuator (this, Vector (), 4000);
+		this->electricFieldActuator = new PointElectricFieldActuator (this, Vector (), this->electricCharge);
+		this->electricFieldActuator->switchedOn = true;
+		this->addPhysicInteraction (this->electricFieldActuator);
 
         // Set physical properties
         double radius = 1;
@@ -63,7 +75,7 @@ namespace Enki
         PhysicalObject::Hull hull(PhysicalObject::Part(hex, height));
         setCustomHull(hull, 1000);
 
-		  this->setCylindric (0, 0, -1); // turn the actuators to point objects so that they don't move
+		  // this->setCylindric (0, 0, -1); // turn the actuators to point objects so that they don't move
 
         setColor(Color(0.8,0.8,0.8,0.3));
         PhysicalObject::dryFrictionCoefficient = 1000; // Casus are immovable

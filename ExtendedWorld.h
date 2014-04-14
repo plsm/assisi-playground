@@ -38,11 +38,11 @@ namespace Enki
 	public:
 		/**
 		 * Construct a world with square walls, takes width and height of the
-		 * world arena in cm. */
+		 * world arena in meters. */
 		ExtendedWorld (double width, double height, const Color& wallsColor = Color::gray, unsigned texWidth = 0, unsigned texHeight = 0, const uint32_t* texData = 0);
 		/**
 		 * Construct a world with circle walls, takes radius of the world
-		 * arena in cm.
+		 * arena in meters.
 		 */
 		ExtendedWorld (double r, const Color& wallsColor = Color::gray, unsigned texWidth = 0, unsigned texHeight = 0, const uint32_t* texData = 0);
 		/**

@@ -7,7 +7,7 @@ HeatActuator::HeatActuator (Robot* owner, Vector relativePosition, double heat):
 	PhysicInteraction (owner),
 	Component (owner, relativePosition, Component::OMNIDIRECTIONAL), 
 	heat (heat),
-	switchedOn (true)
+	switchedOn (false)
 {
 	Component::init ();
 }

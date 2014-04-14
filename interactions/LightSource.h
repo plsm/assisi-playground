@@ -6,10 +6,11 @@
  */
 
 #ifndef __LIGHTSOURCE_HPP
-#define	__LIGHTSOURCE_HPP
+#define __LIGHTSOURCE_HPP
 
 #include <enki/Interaction.h>
-#include "../Component.h"
+#include "Component.h"
+#include "PhysicInteraction.h"
 
 namespace Enki {
 
@@ -22,7 +23,8 @@ namespace Enki {
 	class LightSource:
 		public LocalInteraction,
 		public Component,
-		public PhysicalObject
+		public PhysicalObject,
+		public PhysicInteraction
 	{
 	protected:
 		LightSource (double range, Robot* owner, Vector relativePosition, double orientation);
@@ -36,6 +38,12 @@ namespace Enki {
 		 * position.
 		 */
 		virtual double getIntensityAt (const Point& position, double wavelength) const = 0;
+
+		virtual void init (double dt, PhysicSimulation* ps);
+		/**
+		 * Update the state of the given light model.
+		 */
+		virtual void step (double dt, PhysicSimulation *ps);
 	};
 }
 

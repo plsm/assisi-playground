@@ -11,6 +11,8 @@
 #include "handlers/CasuHandler.h"
 #include "handlers/BeeHandler.h"
 
+#include "interactions/WorldLight.h"
+
 
 #include <iostream>
 
@@ -18,15 +20,19 @@ using namespace std;
 using namespace Enki;
 
 static double radius;
-static double normalHeat, gridScale, borderSize;
-static double maxHeat;
-static double deltaTime;
+static double normalHeat, maxHeat, borderSize;
+static double maxElectricField;
+static double waveLength;
+static double gridScale;
+static double deltaTime = 1000;
 static unsigned int simulationSpeed = 100;
 
 static double currentTime = 0;
 
 static WorldExt *world;
 static WorldHeat *worldHeat;
+static WorldElectricField* worldElectricField;
+static WorldLight* worldLight;
 
 static void initWorld ()
 {
@@ -46,16 +52,30 @@ static void initWorld ()
 		 );
 	worldHeat = new WorldHeat (normalHeat, gridScale, borderSize);
 	world->addPhysicSimulation (worldHeat);
+	worldElectricField = new WorldElectricField (gridScale);
+	// world->addPhysicSimulation (worldElectricField);
+	worldLight = new WorldLight (gridScale, waveLength);
+	// world->addPhysicSimulation (worldLight);
 }
 
 static void readConfigFile ()
 {
 	ifstream ifs ("config.txt");
 	ifs >> radius;
-	ifs >> normalHeat >> gridScale >> borderSize;
-	ifs >> maxHeat;
+	ifs >> normalHeat >> maxHeat >> borderSize;
+	ifs >> maxElectricField;
+	ifs >> waveLength;
+	ifs >> gridScale;
+
+
+	int dummy;
+	// std::cout << "Read physics parameters\n";
+	// std::cin >> dummy;
 
 	initWorld ();
+
+	// std::cout << "Initialised world\n";
+	// std::cin >> dummy;
 
 	int numberCASUs;
 	ifs >> numberCASUs;
@@ -67,13 +87,15 @@ static void readConfigFile ()
 		ifs
 			>> casu->lightSource->intensity
 			>> casu->vibrationSource->amplitude
-			>> casu->vibrationSource->frequency;
+			>> casu->vibrationSource->frequency
+			>> casu->heatActuator->heat
+			>> casu->electricFieldActuator->electricCharge;
 		world->addObject (casu);
 		std::cerr << "Read casu #" << i << std::endl;
 	}
 
 
-	// ifs >> deltaTime >> simulationSpeed;
+	ifs >> deltaTime >> simulationSpeed;
 	ifs.close ();
 }
 
@@ -96,8 +118,13 @@ int main(int argc, char *argv[])
 {
 	QApplication app(argc, argv);
 	readConfigFile ();
+	world->step (deltaTime);
 	initHandlers ();
-	AssisiPlayground viewer (world, worldHeat, maxHeat);	
+	AssisiPlayground viewer
+		(world, worldHeat, maxHeat,
+		 worldElectricField, maxElectricField,
+		 worldLight, waveLength,
+		 deltaTime, simulationSpeed);
 	viewer.show ();
 	
 	return app.exec();
