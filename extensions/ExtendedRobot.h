@@ -29,7 +29,7 @@ namespace Enki
 	 * ExtendedWorld}.
 	 */
 	class ExtendedRobot:
-		public Robot
+		virtual public Robot
 	{
 	protected:
 		/**
