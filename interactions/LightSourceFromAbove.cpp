@@ -56,3 +56,14 @@ getIntensityAt (const Point& position, double wavelength) const
         * (-tanh (k * distance - radius) + 1) / 2
         * exp (-wavelengthDiff * wavelengthDiff / 2 / sigma / sigma);
 }
+
+void LightSourceFromAbove::
+saveState (std::ostream &os) const
+{
+	os
+		// << this->k << ' '
+		// << this->radius << ' '
+		// << this->peakWaveLength << ' '
+		// << this->sigma << ' '
+		<< this->maxIntensity;
+}

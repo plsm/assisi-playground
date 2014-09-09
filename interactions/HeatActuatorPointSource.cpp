@@ -58,3 +58,11 @@ step (double dt, PhysicSimulation *ps)
 		}
 	}
 }
+
+void HeatActuatorPointSource::
+saveState (std::ostream &os) const
+{
+	os
+		<< this->heat << ' '
+		<< this->switchedOn;
+}

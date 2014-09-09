@@ -39,6 +39,8 @@ int main(int argc, char *argv[])
     double env_temp;
     double heat_scale;
     int heat_border_size;
+	 string robotStateFilename;
+	 string heatStateFilename;
 
     desc.add_options()
         ("help,h", "produce help message")
@@ -70,6 +72,16 @@ int main(int argc, char *argv[])
 		 ("Vibration.noise", 
 		  po::value<double> (&Casu::VIBRATION_NOISE),
 		  "vibration frequency noise")
+		 (
+		  "State.save_heat_state",
+		  po::value<string> (&heatStateFilename)->default_value (""),
+		  "save heat state to a file"
+		  )
+		 (
+		  "State.save_robot_state",
+		  po::value<string> (&robotStateFilename)->default_value (""),
+		  "save robot state to a file"
+		  )
 		 ;
 
     po::variables_map vm;
@@ -99,6 +111,12 @@ int main(int argc, char *argv[])
 						  World::GroundTexture (texture.width(),
 														texture.height(), 
 														(const uint32_t*) texture.constBits()) );
+
+	 world.saveStateTo
+		(
+		 (robotStateFilename == "" ? NULL : robotStateFilename.c_str ()),
+		 (heatStateFilename == "" ? NULL : heatStateFilename.c_str ())
+		 );
     
 	WorldHeat *heatModel = new WorldHeat(env_temp, heat_scale, heat_border_size);
 	world.addPhysicSimulation(heatModel);

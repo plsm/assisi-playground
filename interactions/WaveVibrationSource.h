@@ -81,6 +81,10 @@ namespace Enki
 		 * depends on the random noise parameter.
 		 */
 		void setFrequency (double value);
+		/**
+		 * Save the state of this vibration source to the given stream.
+		 */
+		virtual void saveState (std::ostream &os) const;
 	private:
 
 	};

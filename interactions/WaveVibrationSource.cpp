@@ -61,3 +61,12 @@ double WaveVibrationSource::getWaveAt (const Point &position, double time) const
 		)
 		/ (1 + distance2 * this->amplitudeQuadraticDecay);
 }
+
+void WaveVibrationSource::
+saveState (std::ostream &os) const
+{
+	os
+		<< this->maximumAmplitude << ' '
+		<< this->velocity << ' '
+		<< this->phase;
+}

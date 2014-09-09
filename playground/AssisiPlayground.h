@@ -91,6 +91,8 @@ namespace Enki
 		void drawHeatLayer_Chequerboard ();
 		void drawHeatLayer_Gradient ();
 
+		void drawHeatLegend ();
+
 		void setDataToHeat ();
 		void setDataToVibration ();
 		void drawDataAsGradient ();

@@ -58,6 +58,10 @@ namespace Enki
         //! Vibration actuator
         WaveVibrationSource *vibration;
 
+		/**
+		 * Save the state of this robot to the given stream.
+		 */
+		virtual void saveState (std::ostream &os) const;
     private:
         World* world_;
         

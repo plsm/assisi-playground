@@ -117,4 +117,16 @@ Casu::~Casu()
 
 // -----------------------------------------------------------------------------
 
+void Casu::
+saveState (std::ostream &os) const
+{
+	this->light_source_blue->saveState (os);
+	os << ' ';
+	this->peltier->saveState (os);
+	os << ' ';
+	this->vibration->saveState (os);
+}
+
+
+
 }

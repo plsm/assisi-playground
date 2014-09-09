@@ -9,6 +9,7 @@
 
 #include "interactions/VibrationSource.h"
 #include "interactions/NotSimulated.h"
+#include "interactions/WorldHeat.h"
 
 using namespace Enki;
 
@@ -16,6 +17,8 @@ ExtendedWorld::ExtendedWorld (double width, double height,
                               const Color& wallsColor, 
                               const World::GroundTexture& groundTexture):
 	World (width, height, wallsColor, groundTexture),
+	robotStateStream (NULL),
+	heatStateStream (NULL),
 	absoluteTime (0)
 {
 }
@@ -23,12 +26,16 @@ ExtendedWorld::ExtendedWorld (double width, double height,
 ExtendedWorld::ExtendedWorld (double r, const Color& wallsColor,
                               const World::GroundTexture& groundTexture):
 	World (r, wallsColor, groundTexture),
+	robotStateStream (NULL),
+	heatStateStream (NULL),
 	absoluteTime (0)
 {
 }
 
 ExtendedWorld::ExtendedWorld ():
 	World (),
+	robotStateStream (NULL),
+	heatStateStream (NULL),
 	absoluteTime (0)
 {
 }
@@ -51,6 +58,25 @@ void ExtendedWorld::addPhysicSimulation (PhysicSimulation *pi)
 	pi->initParameters (this);
 }
 
+void open (const char *filename, std::ofstream **pstream)
+{
+	if (*pstream) {
+		(*pstream)->close ();
+	}
+	if (filename) {
+		*pstream = new std::ofstream (filename, std::ios_base::out | std::ios_base::trunc);
+	}
+	else {
+		*pstream = NULL;
+	}
+}
+
+void ExtendedWorld::saveStateTo (const char *robotFilename, const char *heatFilename)
+{
+	open (robotFilename, &(this->robotStateStream));
+	open (heatFilename, &(this->heatStateStream));
+}
+
 void ExtendedWorld::step (double dt, unsigned physicsOversampling)
 {
 	const double overSampledDt = dt / (double) physicsOversampling;
@@ -67,6 +93,27 @@ void ExtendedWorld::step (double dt, unsigned physicsOversampling)
 		}
 	}
 	World::step (dt, physicsOversampling);
+
+	if (this->heatStateStream) {
+		*(this->heatStateStream) << absoluteTime;
+		for (PhysicSimulationsIterator pi = physicSimulations.begin (); pi != physicSimulations.end (); ++pi) {
+			WorldHeat *worldHeat = dynamic_cast<WorldHeat *> (*pi);
+			if (worldHeat) {
+				worldHeat->dumpState (*(this->heatStateStream));
+			}
+		}
+		*(this->heatStateStream) << '\n';
+	}
+	if (this->robotStateStream) {
+		*(this->robotStateStream) << absoluteTime;
+		for (ExtendedRobotsIterator eri = extendedRobots.begin (); eri != extendedRobots.end (); ++eri) {
+			*(this->robotStateStream) << '\t';
+			(*eri)->saveState (*(this->robotStateStream));
+		}
+		*(this->robotStateStream) << '\n';
+	}
+
+
 	absoluteTime += dt;
 }
 

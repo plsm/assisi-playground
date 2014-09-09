@@ -43,6 +43,11 @@ namespace Enki
          * Update the position of this bee.  
          */
         void step (int dt, const World *);
+
+		/**
+		 * Save the state of this robot to the given stream.
+		 */
+		virtual void saveState (std::ostream &os) const;
 	};
 }
 

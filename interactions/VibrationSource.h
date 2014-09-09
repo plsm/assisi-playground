@@ -51,6 +51,10 @@ namespace Enki
 		 * given position and time.
 		 */
 		virtual double getWaveAt (const Point &position, double time) const = 0;
+		/**
+		 * Save the state of this vibration source to the given stream.
+		 */
+		virtual void saveState (std::ostream &os) const = 0;
 	};
 }
 

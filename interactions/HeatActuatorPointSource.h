@@ -45,6 +45,10 @@ namespace Enki
 		//! Init at each step
 		virtual void init (double dt, PhysicSimulation *w);
 		virtual void step (double dt, PhysicSimulation* w);
+		/**
+		 * Save the state of this heat source to the given stream.
+		 */
+		virtual void saveState (std::ostream &os) const;
 	};
 }
 

@@ -83,4 +83,12 @@ namespace Enki
         }
         delete light_sensor_blue;
     }
+
+
+void Bee::
+saveState (std::ostream &os) const
+{
+}
+
+
 }

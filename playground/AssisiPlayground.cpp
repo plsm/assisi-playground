@@ -56,6 +56,7 @@ void AssisiPlayground::sceneCompletedHook()
 	glTranslated (-this->world->r, -this->world->r, DATA_Z_LAYER);
 	switch (this->layerToDraw) {
 	case HEAT:
+		this->drawHeatLegend ();
 		if (this->useGradient)
 		 	drawHeatLayer_Gradient ();
 		else
@@ -208,7 +209,49 @@ void AssisiPlayground::drawLightLayer_Chequerboard ()
 
 */
 
+void AssisiPlayground::drawHeatLegend ()
+{
+	char label[100];
+	int i;
 
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix ();
+	glLoadIdentity ();
+	glOrtho (0, this->width (), 0, this->height (), -1.0f, 1.0f);
+
+	glMatrixMode (GL_MODELVIEW);
+	glPushMatrix ();
+	glLoadIdentity ();
+	glPushAttrib (GL_DEPTH_TEST);
+	glDisable (GL_DEPTH_TEST);
+
+	glTranslated (1, this->height () - 12 * 22, 0);
+	for (i = -10; i <= 10; i++) {
+		double heat = this->worldHeat->normalHeat + i * (this->maxHeat - this->worldHeat->normalHeat) / 10;
+		sprintf (label, "%4.1f", heat);
+		glColor3f (0, 0, 0);
+		renderText (12, (11 - i) * 12, label);
+		glTranslated (0, 12, 0);
+		if (i < 0) {
+			glColor3f (0, 0, -i / 10.0);
+		}
+		else {
+			glColor3f (i / 10.0, 0, 0);
+		}
+		glBegin (GL_QUADS); {
+			glVertex2f ( 0,  0);
+			glVertex2f (10,  0);
+			glVertex2f (10, 10);
+			glVertex2f ( 0, 10);
+		} glEnd ();
+	}
+
+	glPopAttrib ();
+	glMatrixMode (GL_PROJECTION);
+	glPopMatrix ();
+	glMatrixMode (GL_MODELVIEW);
+	glPopMatrix ();
+}
 
 void AssisiPlayground::drawHeatLayer_Gradient ()
 {

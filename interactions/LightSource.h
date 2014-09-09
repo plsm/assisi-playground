@@ -36,6 +36,11 @@ namespace Enki {
 		 * position.
 		 */
 		virtual double getIntensityAt (const Point& position, double wavelength) const = 0;
+
+		/**
+		 * Save the state of this light source to the given stream.
+		 */
+		virtual void saveState (std::ostream &os) const = 0;
 	};
 }
 

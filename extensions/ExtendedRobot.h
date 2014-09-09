@@ -13,6 +13,8 @@
 #include "PhysicInteraction.h"
 #include "PhysicSimulation.h"
 
+#include <fstream>
+
 namespace Enki
 {
 	class PhysicInteraction;
@@ -48,6 +50,10 @@ namespace Enki
 		virtual void initPhysicInteractions (double dt, PhysicSimulation* ps);
 		virtual void doPhysicInteractions (double dt, PhysicSimulation *ps);
 		virtual void finalizePhysicInteractions (double dt, PhysicSimulation* ps);
+		/**
+		 * Save the state of this robot to the given stream.
+		 */
+		virtual void saveState (std::ostream &os) const = 0;
 	private:
 		
 	};
