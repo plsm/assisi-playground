@@ -96,7 +96,8 @@ computeNextState (double deltaTime)
 void WorldHeat::
 dumpState (ostream &os)
 {
-#ifdef DUMP_MATRIX
+	//#ifdef DUMP_MATRIX
+	os << '\n';
 	for (int y = 1; y < this->size.y - 1; y++) {
 		os << this->grid [this->adtIndex][1][y];
 		for (int x = 2; x < this->size.x - 1; x++) {
@@ -105,13 +106,13 @@ dumpState (ostream &os)
 		os << '\n';
 	}
 	os << '\n';
-#endif
-// #ifdef DUMP_LINE
+	os << '\n';
+	//#endif
+#ifdef DUMP_LINE
 	for (int y = 1; y < this->size.y - 1; y++) {
 		for (int x = 1; x < this->size.x - 1; x++) {
 			os << '\t' << this->grid [this->adtIndex][x][y];
 		}
 	}
-	os << '\n';
-// #endif
+#endif
 }

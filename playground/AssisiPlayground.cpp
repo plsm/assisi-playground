@@ -50,6 +50,7 @@ using namespace Enki;
 /* virtual */
 void AssisiPlayground::sceneCompletedHook()
 {
+	glDisable (GL_LIGHTING);
 	glEnable (GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glPushMatrix ();
@@ -86,12 +87,16 @@ void AssisiPlayground::sceneCompletedHook()
 	glDisable (GL_BLEND);
 	if (this->showHelp) {
 		glColor3d(0,0,0);
-		renderText (10, height () - 90, tr ("press F1 to toggle this help") );
-		renderText (10, height () - 70, tr ("press H to show heat     press V to show vibration") );
-		renderText(10, height()-50, tr("rotate camera by moving mouse while pressing ctrl+left mouse button"));
-		renderText(10, height()-30, tr("move camera on x/y by moving mouse while pressing ctrl+shift+left mouse button"));
-		renderText(10, height()-10, tr("move camera on z by moving mouse while pressing ctrl+shift+right mouse button"));
+		renderText (10, height () - 110, tr ("press F1 to toggle this help") );
+		renderText (10, height () -  90, tr ("press H to show heat     press V to show vibration") );
+		renderText (10, height () -  70, tr ("rotate camera by moving mouse while pressing ctrl+left mouse button"));
+		renderText (10, height () -  50, tr ("move camera on x/y by moving mouse while pressing ctrl+shift+left mouse button"));
+		renderText (10, height () -  30, tr ("move camera on z by moving mouse while pressing ctrl+shift+right mouse button"));
 	}
+	glColor3d (0, 0, 0);
+	char time[1000];
+	sprintf (time, "time %6.1f", ((ExtendedWorld *) this->world)->getAbsoluteTime ());
+	renderText (10, height () - 10, tr (time));
 }
 
 

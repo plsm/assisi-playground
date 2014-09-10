@@ -66,6 +66,7 @@ void WaveVibrationSource::
 saveState (std::ostream &os) const
 {
 	os
+		<< this->frequency << ' '
 		<< this->maximumAmplitude << ' '
 		<< this->velocity << ' '
 		<< this->phase;
