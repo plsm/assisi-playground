@@ -88,6 +88,9 @@ namespace Enki
 void Bee::
 saveState (std::ostream &os) const
 {
+	os
+		<< this->pos.x << ' '
+		<< this->pos.y;
 }
 
 
