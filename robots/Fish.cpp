@@ -43,3 +43,15 @@ Fish::Fish (double scaleFactor) :
 	this->PhysicalObject::dryFrictionCoefficient = Fish::DRY_FRICTION_COEFFICIENT;
 }
 
+void Fish::step (int deltaTime, const World *world)
+{
+}
+
+void Fish::setColor (double r, double g, double b)
+{
+	color_r_ = r;
+	color_g_ = g;
+	color_b_ = b;
+	PhysicalObject::setColor (Color (r, g, b, 1));
+}
+
