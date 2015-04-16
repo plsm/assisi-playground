@@ -66,7 +66,7 @@ namespace Enki
 		/**
 		 * Zebra fish mass in grams.
 		 */
-		static const double MASS = 10;
+		static const double MASS;
 		/**
 		 * Zebra fish width.
 		 */
@@ -88,6 +88,11 @@ namespace Enki
 
 		/* Sensors */
 
+		typedef std::vector<ObjectSensor*> ObjectSensorVector;
+
+		//! object proximity sensors.
+		ObjectSensorVector object_sensors;
+
 		//! Fish color (useful for diagnostic purposes)
 		double color_r_;
 		double color_g_;
@@ -106,3 +111,9 @@ namespace Enki
 }
 
 #endif
+
+// Local Variables: 
+// mode: c++
+// mode: flyspell-prog
+// ispell-local-dictionary: "british"
+// End: 

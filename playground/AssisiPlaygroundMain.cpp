@@ -20,6 +20,7 @@
 
 #include "robots/Bee.h"
 #include "robots/Casu.h"
+#include "robots/Fish.h"
 
 #include <iostream>
 #include <fstream>
@@ -167,6 +168,9 @@ int main(int argc, char *argv[])
 
 	BeeHandler *bh = new BeeHandler();
 	world->addHandler("Bee", bh);
+
+	FishHandler *bh = new FishHandler();
+	world->addHandler("Fish", bh);
 
 	if (vm.count ("nogui") == 0) {
 		QApplication app(argc, argv);

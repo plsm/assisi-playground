@@ -75,10 +75,12 @@ set(playground_SOURCES AssisiPlaygroundMain.cpp
                        WorldExt.cpp
                        ../robots/Casu.cpp
                        ../robots/Bee.cpp
+                       ../robots/Fish.cpp
                        ../handlers/EPuckHandler.cpp
                        ../handlers/CasuHandler.cpp
                        ../handlers/PhysicalObjectHandler.cpp
                        ../handlers/BeeHandler.cpp
+                       ../handlers/FishHandler.cpp
                        ../interactions/LightConstants.cpp
                        ../interactions/LightSource.cpp
                        ../interactions/LightSourceFromAbove.cpp

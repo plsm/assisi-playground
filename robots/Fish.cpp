@@ -1,8 +1,13 @@
+#include <boost/foreach.hpp>
+#include <boost/math/constants/constants.hpp>
+
 #include "Fish.h"
+
+const double pi = boost::math::constants::pi<double>();
 
 using namespace Enki;
 
-double Fish::SCALE_FACTOR = 1.0;
+const double Fish::SCALE_FACTOR = 1.0;
 
 const double Fish::DISTANCE_BETWEEN_WHEELS = 0.8;
 const double Fish::MAX_SPEED = 50.0;
@@ -41,6 +46,14 @@ Fish::Fish (double scaleFactor) :
 	// set other physical properties
 	this->PhysicalObject::collisionElasticity = Fish::COLLISION_ELASTICITY;
 	this->PhysicalObject::dryFrictionCoefficient = Fish::DRY_FRICTION_COEFFICIENT;
+}
+
+/* virtual */
+Fish::~Fish ()
+{
+	BOOST_FOREACH (ObjectSensor* p, object_sensors) {
+		delete p;
+	}
 }
 
 void Fish::step (int deltaTime, const World *world)
