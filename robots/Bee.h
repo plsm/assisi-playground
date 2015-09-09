@@ -8,27 +8,25 @@
 #include "extensions/ExtendedRobot.h"
 #include "interactions/ObjectSensor.h"
 #include "interactions/HeatSensor.h"
-#include "interactions/LightSensor.h"
 #include "interactions/AirFlowSensor.h"
 
 namespace Enki
 {
-	
-	/**
-	 * A simplistic bee model.
-	 *
-	 * \ingroup robot */
-	class Bee : public DifferentialWheeled, public ExtendedRobot
-	{
-	public:
+    /**
+     * A simplistic bee model.
+     *
+     * \ingroup robot */
+    class Bee : public DifferentialWheeled, public ExtendedRobot
+    {
+    public:
 
-		static const Vector AIR_FLOW_SENSOR_POSITION;
-		static /*const*/ double AIR_FLOW_SENSOR_RANGE;
-		static const double AIR_FLOW_SENSOR_ORIENTATION;
+        static const Vector AIR_FLOW_SENSOR_POSITION;
+        static /*const*/ double AIR_FLOW_SENSOR_RANGE;
+        static const double AIR_FLOW_SENSOR_ORIENTATION;
 
-	public:
+    public:
         //! Create a Bee
-		Bee(double body_length, double body_width, double body_height,
+        Bee(double body_length, double body_width, double body_height,
             double body_mass, double max_speed);
         
         //! destructor
@@ -39,9 +37,6 @@ namespace Enki
         typedef std::vector<ObjectSensor*> ObjectSensorVector;
         //! object proximity sensors.
         ObjectSensorVector object_sensors;
-
-        //! Light sensor.
-        LightSensor* light_sensor_blue;
 
         //! Heat sensor.
         HeatSensor* heat_sensor;
@@ -70,7 +65,7 @@ namespace Enki
          * Update the bee color (useful for diagnostic purposes).
          */
         void setColor(double r, double g, double b);
-	};
+    };
 }
 
 #endif

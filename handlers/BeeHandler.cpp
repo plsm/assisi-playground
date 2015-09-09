@@ -138,16 +138,6 @@ namespace Enki
             send_multipart(socket, ca.first, "Base", "Enc", data);
             count++;
 
-            /* Publish light sensor data */
-            ColorStamped light;
-            light.mutable_color()->set_red(0);
-            light.mutable_color()->set_green(0);
-            light.mutable_color()->set_blue(ca.second->light_sensor_blue->getIntensity());
-            
-            light.SerializeToString(&data);
-            send_multipart(socket, ca.first, "Light", "Readings", data);
-            count++;
-
             /* Publish ground truth */
             PoseStamped pose;
             pose.mutable_pose()->mutable_position()->set_x(ca.second->pos.x);
@@ -172,10 +162,10 @@ namespace Enki
 
             /* Publish air flow sensor */
             AirflowReading airflowReading;
-				airflowReading.set_intensity (ca.second->air_flow_sensor->intensity.norm ());
-				airflowReading.set_direction (ca.second->air_flow_sensor->intensity.angle ());
-				airflowReading.SerializeToString (&data);
-				send_multipart (socket, ca.first, "Airflow", "Reading", data);
+            airflowReading.set_intensity (ca.second->air_flow_sensor->intensity.norm ());
+            airflowReading.set_direction (ca.second->air_flow_sensor->intensity.angle ());
+            airflowReading.SerializeToString (&data);
+            send_multipart (socket, ca.first, "Airflow", "Reading", data);
 
             /* Publish other stuff as necessary */
         }

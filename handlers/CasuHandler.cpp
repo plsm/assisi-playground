@@ -12,7 +12,6 @@
 #include "playground/WorldExt.h"
 #include "robots/Casu.h"
 #include "handlers/CasuHandler.h"
-#include "interactions/LightConstants.h"
 
 // Protobuf message headers
 #include "base_msgs.pb.h"
@@ -29,7 +28,7 @@ using namespace AssisiMsg;
 
 namespace Enki
 {
-	extern double env_temp;
+    extern double env_temp;
 
     /* virtual */
     string CasuHandler::createObject(const std::string& data, 
@@ -88,25 +87,6 @@ namespace Enki
             {
                 cerr << "Unknown command for " << name << "/" << device << endl;
             }         
-        }
-        else if (device == "Light")
-        {
-            if (command == "On")
-            {
-                ColorStamped color_msg;
-                assert(color_msg.ParseFromString(data));
-                casus_[name]->light_source_blue->on( color_msg.color().blue());
-                count++;
-             }
-            else if (command == "Off")
-            {
-                casus_[name]->light_source_blue->off( );
-                count++;
-            }
-            else
-            {
-                cerr << "Unknown command " << command << " for " << name << "/" << device << endl;
-            }
         }
         else if (device == "Peltier")
         {
@@ -193,15 +173,15 @@ namespace Enki
             VibrationReadingArray vibrations;
             BOOST_FOREACH (VibrationSensor *vs, ca.second->vibration_sensors)
             {
-					VibrationReading *vibrationReading = vibrations.add_reading ();
+               VibrationReading *vibrationReading = vibrations.add_reading ();
                const std::vector<double> &amplitudes = vs->getAmplitude ();
                const std::vector<double> &frequencies = vs->getFrequency ();
                BOOST_FOREACH (double a, vs->getAmplitude ())
                   vibrationReading->add_amplitude (a);
                BOOST_FOREACH (double f, vs->getFrequency ())
                   vibrationReading->add_freq (f);
-					// TODO
-					//  add vibration amplitude standard deviation
+               // TODO
+               //  add vibration amplitude standard deviation
             }
             vibrations.SerializeToString (&data);
             zmq::send_multipart (socket, ca.first, "Acc", "Measurements", data);

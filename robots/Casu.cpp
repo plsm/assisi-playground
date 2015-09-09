@@ -12,8 +12,6 @@
 #include <interactions/IRSensor.h>
 
 #include "Casu.h"
-#include "interactions/LightSourceFromAbove.h"
-#include "interactions/LightConstants.h"
 #include "interactions/DiagnosticLed.h"
 #include "extensions/PointMesh.h"
 
@@ -134,19 +132,6 @@ namespace Enki
                 addPhysicInteraction(p);
             }
 
-        // TODO: Move these definitions to the Casu declaration
-        //       and make them static symbolic constants!
-        double light_radius = 5.0; // 5cm
-        double light_k = 1;            // Corresponds to k = 100 for lengths in meters
-        double I_max = 0.0;        // TODO: Figure out correct values
-        double light_sigma = 1.0;
-        this->light_source_blue = new LightSourceFromAbove(2*light_radius, this, Vector(0,0), 0,
-                                                                            light_k, light_radius, Light::Blue, 
-                                                                            I_max, light_sigma);
-    
-        this->light_source_blue->setCylindric(0, 0, -1); // Set to point object
-        world_->addObject(this->light_source_blue);
-                                                
         // Add diagnostic led
         top_led = new DiagnosticLed(this);
 
@@ -225,8 +210,6 @@ namespace Enki
                 delete p;
             }
 
-        world_->removeObject(this->light_source_blue);
-
         delete top_led;
 
         BOOST_FOREACH(AirPump* p, air_pumps)
@@ -240,27 +223,27 @@ namespace Enki
 void Casu::
 createBridge (ExtendedWorld* world, Vector direction)
 {
-	std::vector<Point> polygon;
-	polygon.reserve (4);
-	Point p1, p2;
-	p2 = direction.perp ();
-	p2 *= Casu::BRIDGE_WIDTH / 2;
-	p2 += this->pos;
-	polygon.push_back (p2);
-	p1 = direction;
-	p1 *= Casu::BRIDGE_LENGTH;
-	p1 += p2;
-	polygon.push_back (p1);
-	p1 = direction;
-	p1 *= Casu::BRIDGE_LENGTH;
-	p2 = direction.perp ();
-	p2 *= -Casu::BRIDGE_WIDTH / 2;
-	p1 += p2;
-	p1 += this->pos;
-	polygon.push_back (p1);
-	p2 += this->pos;
-	polygon.push_back (p2);
-	world->worldHeat->drawPolygon (Casu::THERMAL_DIFFUSIVITY_COPPER_BRIDGE, polygon);
+    std::vector<Point> polygon;
+    polygon.reserve (4);
+    Point p1, p2;
+    p2 = direction.perp ();
+    p2 *= Casu::BRIDGE_WIDTH / 2;
+    p2 += this->pos;
+    polygon.push_back (p2);
+    p1 = direction;
+    p1 *= Casu::BRIDGE_LENGTH;
+    p1 += p2;
+    polygon.push_back (p1);
+    p1 = direction;
+    p1 *= Casu::BRIDGE_LENGTH;
+    p2 = direction.perp ();
+    p2 *= -Casu::BRIDGE_WIDTH / 2;
+    p1 += p2;
+    p1 += this->pos;
+    polygon.push_back (p1);
+    p2 += this->pos;
+    polygon.push_back (p2);
+    world->worldHeat->drawPolygon (Casu::THERMAL_DIFFUSIVITY_COPPER_BRIDGE, polygon);
 }
 
 }

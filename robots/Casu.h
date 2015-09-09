@@ -13,7 +13,6 @@
 #include "extensions/ExtendedWorld.h"
 #include <interactions/IRSensor.h>
 #include "interactions/DiagnosticLed.h"
-#include "interactions/LightSourceFromAbove.h"
 #include "interactions/HeatActuatorMesh.h"
 #include "interactions/WaveVibrationSource.h"
 #include "interactions/VibrationSensor.h"
@@ -91,9 +90,6 @@ namespace Enki
         TempSensorVector temp_sensors;
         
         /* Actuators */
-
-        //! Light source
-        LightSourceFromAbove* light_source_blue;
 
         //! Diagnostic LED
         DiagnosticLed* top_led;

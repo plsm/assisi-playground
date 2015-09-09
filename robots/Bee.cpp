@@ -10,7 +10,6 @@
 #include <PhysicalEngine.h>
 
 #include "Bee.h"
-#include "interactions/LightConstants.h"
 
 const double pi = boost::math::constants::pi<double>();
 
@@ -67,12 +66,6 @@ namespace Enki
             addLocalInteraction(object_sensors[i]);
             }
 
-        double light_sensor_range = 10.0;
-        light_sensor_blue = new LightSensor
-           (light_sensor_range, this,
-            Vector(0,0), 0.0, Light::Blue);
-        addLocalInteraction(light_sensor_blue);
-
         // Check in the model why is this necessary
         double minMeasurableHeat = 0.0;
         double maxMeasurableHeat = 100.0;
@@ -97,7 +90,6 @@ namespace Enki
         {
             delete p;
         }
-        delete light_sensor_blue;
     }
 
     void Bee::setColor(double r, double g, double b)
