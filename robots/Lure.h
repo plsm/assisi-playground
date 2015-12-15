@@ -1,28 +1,25 @@
-/*! \file  Fish.h
-    \brief A simplistic fish model implementation.
+/*! \file  Lure.h
+    \brief A simplistic fish lure model implementation.
 */
 #ifndef ENKI_FISH_H
 #define ENKI_FISH_H
 
 #include <enki/robots/DifferentialWheeled.h>
-#include <enki/interactions/CircularCam.h>
 #include "extensions/ExtendedRobot.h"
-#include "interactions/ObjectSensor.h"
-#include "interactions/HeatSensor.h"
-#include "interactions/LightSensor.h"
+#include "interactions/IRSensor.h"
 
 namespace Enki
 {
     /**
-     * A simplistic fish model.
+     * A simplistic fish lure model.
      *
-     * A fish is based on a differential wheeled robot.  
+     * A fish lure is based on a differential wheeled robot.  
      *
-     * Zebra fish are drawn in a light grey colour.  They are represented by
+     * Fish Lure are drawn in a dark grey colour.  They are represented by
      * an ellipse with length 70mm, width 8mm and height 12mm.
      *
      * \ingroup robot */
-    class Fish :
+    class Lure :
         public DifferentialWheeled,
         public ExtendedRobot
     {
@@ -44,52 +41,33 @@ namespace Enki
          */
         static const double NOISE_AMOUNT;
         /**
-         * Number of object sensors in zebrafish.
+         * Number of range sensors in fish lure.
          */
-        static const int NUMBER_OBJECT_SENSORS;
+        static const int NUMBER_RANGE_SENSORS;
         /**
-         * Height of object sensors.
+         * Height of range sensors.
          */
-        static const double OBJECT_SENSOR_HEIGHT;
+        static const double RANGE_SENSOR_HEIGHT;
         /**
-         * Maximum object of object sensors.
+         * Maximum range of range sensors.
          */
-        static const double OBJECT_SENSOR_RANGE;
+        static const double RANGE_SENSOR_RANGE;
         /**
-         * Value of parameter m of object sensor model.
+         * Value of parameter m of range sensor model.
          */
-        static const double OBJECT_SENSOR_M;
+        static const double RANGE_SENSOR_M;
         /**
-         * Value of parameter x0 of object sensor model.
+         * Value of parameter x0 of range sensor model.
          */
-        static const double OBJECT_SENSOR_X0;
+        static const double RANGE_SENSOR_X0;
         /**
-         * Value of parameter c of object sensor model.
+         * Value of parameter c of range sensor model.
          */
-        static const double OBJECT_SENSOR_C;
+        static const double RANGE_SENSOR_C;
         /**
-         * Standard deviation of noise in object sensor model.
+         * Standard deviation of noise in range sensor model.
          */
-        static const double OBJECT_SENSOR_NOISESD;
-        /**
-         */
-        static const double CAMERA_HEIGHT;
-        /**
-         * Half aperture of a circular camera.  The real field of view is twice
-         * this value [0; PI/2].  Circular cameras are used to model fish's
-         * eyes.
-         */
-        static const double CAMERA_HALF_FIELD_OF_VIEW;
-        /**
-         * Overlap of the two circular cameras.  Circular cameras are used to
-         * model fish's eyes.
-         */
-        static const double CAMERA_FIELD_OF_VIEW_OVERLAP;
-        /**
-         * Number of pixel to cover the full field of view of a circular camera.
-         * Circular cameras are used to model fish's eyes.
-         */
-        static const unsigned CAMERA_PIXEL_COUNT;
+        static const double RANGE_SENSOR_NOISESD;
         /**
          * Zebra fish are drawn in a light grey colour.
          */
@@ -127,25 +105,18 @@ namespace Enki
          */
         static const double HEIGHT;
     public:
-        //! Create a Fish
-        Fish (double scaleSize = Fish::SCALE_FACTOR);
+        //! Create a Fish lure
+        Lure (double scaleSize = Fish::SCALE_FACTOR);
         
         //! destructor
-        virtual ~Fish ();
+        virtual ~Lure ();
 
         /* Sensors */
 
-        typedef std::vector<ObjectSensor*> ObjectSensorVector;
+        typedef std::vector<IRSensor*> IRSensorVector;
 
-        //! object proximity sensors.
-        ObjectSensorVector object_sensors;
-
-        typedef std::vector<CircularCam *> CircularCamVector;
-
-        CircularCamVector eyes;
-
-        /* Properties */
-        
+        //! Proximity sensors.
+        IRSensorVector range_sensors;    
 
         //! Fish color (useful for diagnostic purposes)
         double color_r_;

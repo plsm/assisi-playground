@@ -18,6 +18,7 @@
 #include "handlers/EPuckHandler.h"
 #include "handlers/CasuHandler.h"
 #include "handlers/BeeHandler.h"
+#include "handlers/FishHandler.h"
 
 #include "robots/Bee.h"
 #include "robots/Casu.h"
@@ -315,8 +316,8 @@ int main(int argc, char *argv[])
                                     bee_body_mass, bee_max_speed);
 	world->addHandler("Bee", bh);
 
-	FishHandler *bh = new FishHandler();
-	world->addHandler("Fish", bh);
+	FishHandler *fh = new FishHandler();
+	world->addHandler("Fish", fh);
 
 	if (vm.count ("nogui") == 0) {
 		QApplication app(argc, argv);

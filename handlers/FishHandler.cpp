@@ -148,6 +148,24 @@ namespace Enki
             color.SerializeToString(&data);
             send_multipart(socket, ca.first, "Color", "ColorVal", data);
             
+            /* Publish Circular Camera image */
+            // char *eye[] = {"Left", "Right"};
+            // for (int i = 0; i < 2; i++)
+            // {
+            // 	CircularCam *eye = ca.second->eyes [i];
+            // 	// CircularCameraImage cc;
+            // 	BOOST_FOREACH (double distance, eye->zbuffer) {
+            // 		;
+            // 		// cc.add_distance (distance);
+            // 	}
+            // 	BOOST_FOREACH (Colour c, eye->image) {
+            // 		;
+            // 		// cc.add_pixel (c);
+            // 	}
+            // 	// cc.SerializeToString(&data);
+            // 	// send_multipart(socket, ca.first, "Eye", eye [i], data);
+            // 	// count++;
+            // }
             /* Publish other stuff as necessary */
         }
 
@@ -171,3 +189,12 @@ namespace Enki
 // -----------------------------------------------------------------------------
 
 }
+
+// Local Variables: 
+// mode: c++
+// mode: flyspell-prog
+// ispell-local-dictionary: "british"
+// indent-tabs-mode: nil
+// tab-width: 4
+// c-basic-offset: 4
+// End: 

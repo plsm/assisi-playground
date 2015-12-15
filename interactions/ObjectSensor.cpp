@@ -40,6 +40,7 @@
 
 #include "robots/Bee.h"
 #include "robots/Casu.h"
+#include "robots/Fish.h"
 
 /*!	\file ObjectSensor.cpp
 	\brief Implementation of the object type sensor
@@ -162,6 +163,10 @@ namespace Enki
                         {
                             object_type = "Casu";
                         }
+                        else if (dynamic_cast<Fish*>(po))
+                        {
+                            object_type = "Fish";
+                        }
                     }
 				}
 			}
@@ -199,6 +204,10 @@ namespace Enki
                             else if (dynamic_cast<Casu*>(po))
                             {
                                 object_type = "Casu";
+                            }
+                            else if (dynamic_cast<Fish*>(po))
+                            {
+                                object_type = "Fish";
                             }
                         }
 					}
