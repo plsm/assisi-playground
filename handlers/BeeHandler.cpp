@@ -42,7 +42,8 @@ namespace Enki
             Point pos(spawn_msg.pose().position().x(),
                       spawn_msg.pose().position().y());
             double yaw(spawn_msg.pose().orientation().z());
-            bees_[name] = new Bee;
+            bees_[name] = new Bee(body_length_,body_width_,body_height_,
+                                  body_mass_, max_speed_);
             bees_[name]->pos = pos;
             bees_[name]->angle = yaw;
             world->addObject(bees_[name]);
@@ -77,7 +78,23 @@ namespace Enki
             {
                 cerr << "Unknown command for " << name << "/" << device << endl;
                 return 0;
-            }         
+            }
+        }
+        else if (device == "Color")
+        {
+            if (command == "Set")
+            {
+                ColorStamped color_msg;
+                assert(color_msg.ParseFromString(data));
+                /*
+                bees_[name]->setColor(Color(color_msg.color().red(),
+                                            color_msg.color().green(),
+                                            color_msg.color().blue()));
+                */
+                bees_[name]->setColor(color_msg.color().red(),
+                                      color_msg.color().green(),
+                                      color_msg.color().blue());
+            }
         }
         else
         {
@@ -107,8 +124,15 @@ namespace Enki
             send_multipart(socket, ca.first, "Object", "Ranges", data);
             count++;
 
-            /* Publish velocities */
+            /* Publish velocity setpoints */
             DiffDrive drive;
+            drive.set_vel_left(ca.second->leftSpeed);
+            drive.set_vel_right(ca.second->rightSpeed);
+            drive.SerializeToString(&data);
+            send_multipart(socket, ca.first, "Base", "VelRef", data);
+            count++;
+
+            /* Publish velocities */
             drive.set_vel_left(ca.second->leftEncoder);
             drive.set_vel_right(ca.second->rightEncoder);
             send_multipart(socket, ca.first, "Base", "Enc", data);
@@ -137,7 +161,22 @@ namespace Enki
             temps.add_temp(ca.second->heat_sensor->getMeasuredHeat());
             temps.SerializeToString(&data);
             send_multipart(socket, ca.first, "Temp", "Temperatures", data);
-            
+
+            /* Publish Diagnostic color "actuator" set value */
+            ColorStamped color;
+            color.mutable_color()->set_red(ca.second->color_r_);
+            color.mutable_color()->set_green(ca.second->color_g_);
+            color.mutable_color()->set_blue(ca.second->color_b_);
+            color.SerializeToString(&data);
+            send_multipart(socket, ca.first, "Color", "ColorVal", data);
+
+            /* Publish air flow sensor */
+            AirflowReading airflowReading;
+				airflowReading.set_intensity (ca.second->air_flow_sensor->intensity.norm ());
+				airflowReading.set_direction (ca.second->air_flow_sensor->intensity.angle ());
+				airflowReading.SerializeToString (&data);
+				send_multipart (socket, ca.first, "Airflow", "Reading", data);
+
             /* Publish other stuff as necessary */
         }
 

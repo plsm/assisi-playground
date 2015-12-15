@@ -31,11 +31,12 @@ namespace Enki
 	{
 		
 		Q_OBJECT;
-
+	public:
 		/**
 		 * Data layers that can be drawn in the window.
 		 */
-		enum Layer {NONE, HEAT, ELECTRIC_FIELD, VIBRATION, LIGHT};
+		enum Layer {NONE, HEAT, ELECTRIC_FIELD, VIBRATION, LIGHT, AIR_FLOW, DIFFUSIVITY};
+	private:
 		/**
 		 * Heat physic simulation used in the underlying world.
 		 */
@@ -45,11 +46,18 @@ namespace Enki
 		 * values are drawn in shades of red while lower values are drawn in
 		 * shades of blue.
 		 */
-		const double maxHeat;
+		static const double MAX_HEAT;
+		static const double MIN_HEAT;
+		static const int NUMBER_HEAT_TICS;
 		/**
 		 * Maximum presentable vibration intensity.
 		 */
 		const double maxVibration;
+		/**
+		 * Maximum presentable air flow intensity.
+		 */
+		const double MAX_AIR_FLOW;
+	public:
 		/**
 		 * The layer to drawn upon robots. 
 		 */
@@ -58,6 +66,7 @@ namespace Enki
 		 * Transparency of the layer drawn above robots.
 		 */
 		double transparency;
+	private:
 		/**
 		 * Whether to draw data using a gradient or not.
 		 */
@@ -65,10 +74,12 @@ namespace Enki
 
 		Point dataSize;
 		std::vector<std::vector<std::vector<float> > > dataColour;
+	public:
 		/**
 		 * Whether to show a help message or not.
 		 */
 		bool showHelp;
+	private:
 		/**
 		 * The world that is shown in this widget.
 		 */
@@ -80,7 +91,7 @@ namespace Enki
 		int dataLayerZ;
 
 	public:
-		AssisiPlayground (ExtendedWorld *world, WorldHeat *worldHeat, double maxHeat, double maxVibration, QWidget *parent = 0);	
+		AssisiPlayground (ExtendedWorld *world, WorldHeat *worldHeat, double maxVibration, QWidget *parent = 0);
     void addEPuck(World *world, Point pos);
 
 
@@ -98,14 +109,22 @@ namespace Enki
 		void drawVibrationLayer_Chequerboard ();
 		void drawHeatLayer_Chequerboard ();
 		void drawHeatLayer_Gradient ();
+		void drawDiffusivityLayer_Chequerboard ();
+		void drawAirFlowLayer_Chequerboard ();
+		void drawAirFlowLayer_Gradient ();
 
 		void drawHeatLegend ();
 
 		void setDataToHeat ();
+		void setDataToDiffusivity ();
 		void setDataToVibration ();
+		void setDataToAirFlow ();
+
 		void drawDataAsGradient ();
 		void drawDataAsCheckerBoard ();
 
+		void heatToColour (double heat);
+		void heatToColour (double heat, float &red, float &green, float &blue);
 	};
 
 } // namespace Enki

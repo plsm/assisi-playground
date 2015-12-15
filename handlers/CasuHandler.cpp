@@ -29,6 +29,7 @@ using namespace AssisiMsg;
 
 namespace Enki
 {
+	extern double env_temp;
 
     /* virtual */
     string CasuHandler::createObject(const std::string& data, 
@@ -43,9 +44,11 @@ namespace Enki
             Point pos(spawn_msg.pose().position().x(),
                       spawn_msg.pose().position().y());
             double yaw(spawn_msg.pose().orientation().z());
-            casus_[name] = new Casu(world);
+            casus_[name] = new Casu(pos, yaw, world, env_temp);
             casus_[name]->pos = pos;
             casus_[name]->angle = yaw;
+            // casus_[name]->peltier->setHeatDiffusivity (world, WorldHeat::THERMAL_DIFFUSIVITY_COPPER);
+
             world->addObject(casus_[name]);
         }
         else
@@ -125,11 +128,32 @@ namespace Enki
         {
             if (command == "on")
             {
-                VibrationAction freq_msg;
+                VibrationSetpoint freq_msg;
                 assert (freq_msg.ParseFromString (data));
                 casus_[name]->vibration_source->setFrequency (freq_msg.freq ());
                 count++;
             }
+        }
+        else if (device == "Airflow")
+        {
+           if (command == "On")
+           {
+              Airflow airflow;
+              assert (airflow.ParseFromString (data));
+              BOOST_FOREACH(AirPump* p, casus_ [name]->air_pumps)
+              {
+                  p->setIntensity (airflow.intensity ());
+              }
+              count++;
+           }
+           else if (command == "Off")
+           {
+              BOOST_FOREACH(AirPump* p, casus_ [name]->air_pumps)
+              {
+                  p->setIntensity (0);
+              }
+              count++;
+           }
         }
         else
         {
@@ -166,7 +190,7 @@ namespace Enki
             zmq::send_multipart(socket, ca.first, "IR", "Ranges", data);
 
             /* Publish vibration readings */
-            VibrationArray vibrations;
+            VibrationReadingArray vibrations;
             BOOST_FOREACH (VibrationSensor *vs, ca.second->vibration_sensors)
             {
 					VibrationReading *vibrationReading = vibrations.add_reading ();
@@ -176,6 +200,8 @@ namespace Enki
                   vibrationReading->add_amplitude (a);
                BOOST_FOREACH (double f, vs->getFrequency ())
                   vibrationReading->add_freq (f);
+					// TODO
+					//  add vibration amplitude standard deviation
             }
             vibrations.SerializeToString (&data);
             zmq::send_multipart (socket, ca.first, "Acc", "Measurements", data);
@@ -188,6 +214,19 @@ namespace Enki
             }
             temperatures.SerializeToString(&data);
             zmq::send_multipart(socket, ca.first, "Temp", "Temperatures", data);
+
+            /* Publish temperature actuator setpoint and state. */            
+            Temperature temp_ref;
+            temp_ref.set_temp(ca.second->peltier->getHeat());
+            temp_ref.SerializeToString(&data);
+            if (ca.second->peltier->isSwitchedOn())
+            {
+                zmq::send_multipart(socket, ca.first, "Peltier", "On", data);
+            }
+            else
+            {
+                zmq::send_multipart(socket, ca.first, "Peltier", "Off", data);
+            }                
 
             /* Publish other stuff as necessary ... */
 
@@ -213,3 +252,7 @@ namespace Enki
 // -----------------------------------------------------------------------------
 
 }
+
+// Local Variables: 
+// indent-tabs-mode: nil
+// End: 

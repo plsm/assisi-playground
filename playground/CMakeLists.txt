@@ -7,12 +7,11 @@ find_library(enki_LIBRARY enki)
 find_library(enkiviewer_LIBRARY enkiviewer)
 set(enki_LIBRARIES ${enki_LIBRARY} ${enkiviewer_LIBRARY})
 
+find_package(Threads)
 
 find_package(ZeroMQ REQUIRED)
 
-# boost::for_each is used within WorldExt
-find_package(Boost REQUIRED)
-find_package(Boost COMPONENTS program_options REQUIRED)
+find_package(Boost COMPONENTS program_options filesystem system thread timer REQUIRED)
 
 # Set up compilation of protobuffer files
 find_package(Protobuf REQUIRED)
@@ -33,34 +32,34 @@ include_directories (${CMAKE_SOURCE_DIR}
 #link_directories (${CMAKE_BINARY_DIR})
 
 # Demo world "server" (no GUI)
-set(test_ext_SOURCES WorldExt.cpp
-                     ../robots/Casu.cpp
-                     ../robots/Bee.cpp
-                     ../handlers/EPuckHandler.cpp
-                     ../handlers/CasuHandler.cpp
-                     ../handlers/PhysicalObjectHandler.cpp
-                     ../handlers/BeeHandler.cpp
-                     ../interactions/LightConstants.cpp
-                     ../interactions/LightSource.cpp
-                     ../interactions/LightSourceFromAbove.cpp
-                     ../interactions/LightSensor.cpp
-                     ../interactions/WorldHeat.cpp
-                     ../interactions/HeatSensor.cpp
-                     ../interactions/HeatActuatorMesh.cpp
-                     ../interactions/HeatActuatorPointSource.cpp
-					 ../interactions/WaveVibrationSource.cpp
-                     ../interactions/VibrationSource.cpp
-                     ../interactions/VibrationSensor.cpp
-                     ../interactions/ObjectSensor.cpp
-                     ../extensions/Component.cpp
-                     ../extensions/ExtendedRobot.cpp
-                     ../extensions/ExtendedWorld.cpp
-                     ../extensions/PointMesh.cpp
-                     TestWorldExt.cpp
-                     ${ProtoSources})
+#set(test_ext_SOURCES WorldExt.cpp
+#                     ../robots/Casu.cpp
+#                     ../robots/Bee.cpp
+#                     ../handlers/EPuckHandler.cpp
+#                     ../handlers/CasuHandler.cpp
+#                     ../handlers/PhysicalObjectHandler.cpp
+#                     ../handlers/BeeHandler.cpp
+#                     ../interactions/LightConstants.cpp
+#                     ../interactions/LightSource.cpp
+#                     ../interactions/LightSourceFromAbove.cpp
+#                     ../interactions/LightSensor.cpp
+#                     ../interactions/WorldHeat.cpp
+#                     ../interactions/HeatSensor.cpp
+#                     ../interactions/HeatActuatorMesh.cpp
+#                     ../interactions/HeatActuatorPointSource.cpp
+#					 ../interactions/WaveVibrationSource.cpp
+#                     ../interactions/VibrationSource.cpp
+#                     ../interactions/VibrationSensor.cpp
+#                     ../interactions/ObjectSensor.cpp
+#                     ../extensions/Component.cpp
+#                     ../extensions/ExtendedRobot.cpp
+#                     ../extensions/ExtendedWorld.cpp
+#                     ../extensions/PointMesh.cpp
+#                     TestWorldExt.cpp
+#                     ${ProtoSources})
 
-add_executable(test_ext ${test_ext_SOURCES})
-target_link_libraries(test_ext ${enki_LIBRARIES} ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARY} ${Boost_LIBRARIES})
+#add_executable(test_ext ${test_ext_SOURCES})
+#target_link_libraries(test_ext ${enki_LIBRARIES} ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARY} ${Boost_LIBRARIES})
 
 find_package(Qt4 REQUIRED)
 find_package(OpenGL REQUIRED)
@@ -68,6 +67,12 @@ set(QT_USE_QTOPENGL TRUE)
 
 include(${QT_USE_FILE})
 add_definitions(${QT_DEFINITIONS})
+
+#set(GCC_GRAPHITE_COMPILE_FLAGS, "-floop-parallelize-all -ftree-parallelize-loops=4")
+
+set(GCC_GRAPHITE_COMPILE_FLAGS, "")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_GRAPHITE_COMPILE_FLAGS}" )
+
 
 # The ASSISI playground
 set(playground_SOURCES AssisiPlaygroundMain.cpp
@@ -85,12 +90,15 @@ set(playground_SOURCES AssisiPlaygroundMain.cpp
                        ../interactions/LightSensor.cpp
                        ../interactions/WorldHeat.cpp
                        ../interactions/HeatSensor.cpp
-			           ../interactions/VibrationSource.cpp
+                       ../interactions/AbstractGrid.cpp
+                       ../interactions/VibrationSource.cpp
                        ../interactions/HeatActuatorMesh.cpp
                        ../interactions/HeatActuatorPointSource.cpp
-					   ../interactions/WaveVibrationSource.cpp
+                       ../interactions/WaveVibrationSource.cpp
                        ../interactions/VibrationSensor.cpp
                        ../interactions/ObjectSensor.cpp
+                       ../interactions/AirPump.cpp
+                       ../interactions/AirFlowSensor.cpp
                        ../extensions/Component.cpp
                        ../extensions/ExtendedRobot.cpp
                        ../extensions/ExtendedWorld.cpp
@@ -115,7 +123,80 @@ target_link_libraries(assisi_playground ${enki_LIBRARIES}
                                         ${OPENGL_LIBRARIES} 
                                         ${ZeroMQ_LIBRARY}
                                         ${PROTOBUF_LIBRARY}
-                                        ${Boost_LIBRARIES})
+                                        ${Boost_LIBRARIES}
+                                        ${CMAKE_THREAD_LIBS_INIT})
 
 # Copy config files to binary dir
 configure_file(Playground.cfg Playground.cfg COPYONLY)
+
+
+
+
+
+##
+##
+##
+## CALIBRATE_HEAT
+
+
+
+#find_package(Qt4 REQUIRED)
+#find_package(OpenGL REQUIRED)
+#set(QT_USE_QTOPENGL TRUE)
+
+#include(${QT_USE_FILE})
+#add_definitions(${QT_DEFINITIONS})
+
+#set(calibratePeltier_SOURCES calibratePeltier.cpp
+#                       WorldExt.cpp
+#							  configuration.cpp
+#                       ../robots/Casu.cpp
+#                       ../robots/Bee.cpp
+#                       ../handlers/EPuckHandler.cpp
+#                       ../handlers/CasuHandler.cpp
+#                       ../handlers/PhysicalObjectHandler.cpp
+#                       ../handlers/BeeHandler.cpp
+#                       ../interactions/LightConstants.cpp
+#                       ../interactions/LightSource.cpp
+#                       ../interactions/LightSourceFromAbove.cpp
+#                       ../interactions/LightSensor.cpp
+#                       ../interactions/WorldHeat.cpp
+#                       ../interactions/HeatSensor.cpp
+#			           ../interactions/VibrationSource.cpp
+#                       ../interactions/HeatActuatorMesh.cpp
+#                       ../interactions/HeatActuatorPointSource.cpp
+#					   ../interactions/WaveVibrationSource.cpp
+#                       ../interactions/VibrationSensor.cpp
+#                       ../interactions/AirPump.cpp
+#                       ../interactions/AirFlowSensor.cpp
+#                       ../interactions/ObjectSensor.cpp
+#                       ../extensions/Component.cpp
+#                       ../extensions/ExtendedRobot.cpp
+#                       ../extensions/ExtendedWorld.cpp
+#                      ../extensions/PointMesh.cpp
+#                       ${ProtoSources})
+
+#set(calibratePeltier_QT_HEADERS AssisiPlayground.h)
+
+#qt4_wrap_cpp(calibratePeltier_QT_HEADERS_MOC ${calibratePeltier_QT_HEADERS})
+
+#qt4_add_resources(calibratePeltier_RCC_SOURCES playground-textures.qrc)
+	
+#include_directories (${OPENGL_INCLUDE_DIR})    
+
+#add_executable(
+#  calibratePeltier
+#  ${calibratePeltier_SOURCES}
+#  ${calibratePeltier_QT_HEADERS_MOC}
+#  ${calibratePeltier_RCC_SOURCES}
+#)
+
+#target_link_libraries(
+#  calibratePeltier
+#  ${enki_LIBRARIES}
+#  ${QT_LIBRARIES} 
+#  ${OPENGL_LIBRARIES} 
+#  ${ZeroMQ_LIBRARY}
+#  ${PROTOBUF_LIBRARY}
+#  ${Boost_LIBRARIES}
+#)
