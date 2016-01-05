@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
          "Address for subscribing to commands, in the form tcp://hostname:port")
         ("Arena.radius,r", po::value<int>(&r), 
          "playground radius, in cm")
+        ("noheat", "run without heat")
         ("Heat.env_temp,t", po::value<double>(&env_temp), 
          "environment temperature, in C")
         ("Heat.scale", po::value<double>(&heat_scale), 
@@ -300,11 +301,13 @@ int main(int argc, char *argv[])
         skewMonitorRate,
         skewReportThreshold);
 
-    heatModel = new WorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel);
-	if (heat_log_file_name != "") {
-		heatModel->logToStream (heat_log_file_name);
-	}
-	world->addPhysicSimulation(heatModel);
+    if (vm.count ("noheat") == 0) {
+        heatModel = new WorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel);
+        if (heat_log_file_name != "") {
+            heatModel->logToStream (heat_log_file_name);
+        }
+        world->addPhysicSimulation(heatModel);
+    }
 
 	CasuHandler *ch = new CasuHandler();
 	world->addHandler("Casu", ch);
@@ -322,8 +325,8 @@ int main(int argc, char *argv[])
 	if (vm.count ("nogui") == 0) {
 		QApplication app(argc, argv);
 
-		AssisiPlayground viewer (world, heatModel, maxVibration);
-		if (!heatModel->validParameters (viewer.timerPeriodMs / 1000.)) {
+		AssisiPlayground viewer (world, heatModel, heat_scale, maxVibration);
+		if (vm.count ("noheat") == 0 && !heatModel->validParameters (viewer.timerPeriodMs / 1000.)) {
 			cerr << "Parameters of heat model are not valid!\nExiting.\n";
 			return 1;
 		}
@@ -357,7 +360,7 @@ int main(int argc, char *argv[])
 		return app.exec();
 	}
 	else {
-		if (!heatModel->validParameters (DELTA_TIME)) {
+		if (vm.count ("noheat") == 0 && !heatModel->validParameters (DELTA_TIME)) {
 			cerr << "Parameters of heat model are not valid!\nExiting.\n";
 			return 1;
 		}
@@ -371,7 +374,8 @@ int main(int argc, char *argv[])
 		}
 		/* clean up */
 		delete world;
-		delete heatModel;
+        if (vm.count ("noheat") == 0)
+            delete heatModel;
 		cout << "Simulator finished CORRECTLY!!!\n";
 		return ret;
 	}
@@ -476,3 +480,12 @@ int runTimer ()
 	setitimer (ITIMER_REAL, &value, NULL);
 	return 0;
 }
+
+// Local Variables: 
+// mode: c++
+// mode: flyspell-prog
+// ispell-local-dictionary: "british"
+// indent-tabs-mode: nil
+// tab-width: 4
+// c-basic-offset: 4
+// End: 

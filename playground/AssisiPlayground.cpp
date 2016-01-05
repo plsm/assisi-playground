@@ -8,7 +8,7 @@
 
 namespace Enki
 {
-	AssisiPlayground::AssisiPlayground (ExtendedWorld *world, WorldHeat *worldHeat, double maxVibration, QWidget *parent) :
+	AssisiPlayground::AssisiPlayground (ExtendedWorld *world, WorldHeat *worldHeat, double gridScale, double maxVibration, QWidget *parent) :
 		ViewerWidget(world, parent),
 		extendedWorld (world),
 		worldHeat (worldHeat),
@@ -17,7 +17,8 @@ namespace Enki
 		layerToDraw (NONE),
 		transparency (0.5),
 		useGradient (false),
-		dataSize (ceil (2 * world->r / worldHeat->gridScale), ceil (2 * world->r / worldHeat->gridScale)),
+		gridScale (gridScale),
+		dataSize (ceil (2 * world->r / gridScale), ceil (2 * world->r / gridScale)),
 		dataColour (dataSize.x, std::vector<std::vector<float> > (dataSize.y, std::vector<float> (3, 0) ) ),
 		showHelp (true),
 		dataLayerZ (5)
@@ -58,7 +59,7 @@ void AssisiPlayground::sceneCompletedHook()
 	glEnable (GL_BLEND);
 	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glPushMatrix ();
-	glTranslated (-this->world->r + this->worldHeat->gridScale, -this->world->r + this->worldHeat->gridScale, dataLayerZ);
+	glTranslated (-this->world->r + this->gridScale, -this->world->r + this->gridScale, dataLayerZ);
 	switch (this->layerToDraw) {
 	case HEAT:
 		drawHeatLegend ();
@@ -231,26 +232,26 @@ void AssisiPlayground::drawAirFlowLayer_Chequerboard ()
 void AssisiPlayground::setDataToHeat ()
 {
 	Vector pos, where;
-	where.x = -this->world->r + this->worldHeat->gridScale;
+	where.x = -this->world->r + this->gridScale;
 	for (pos.x = 0; pos.x < this->dataSize.x; pos.x++) {
-		where.y = -this->world->r + this->worldHeat->gridScale;
+		where.y = -this->world->r + this->gridScale;
 		for (pos.y = 0; pos.y < this->dataSize.y; pos.y++) {
 			double heat = this->worldHeat->getHeatAt (where);
 			//double heat = (this->worldHeat->getHeatDiffusivityAt (where) - 1.11e-4) / (1.9e-5 - 1.11e-4) * (25) + 25 ;
 			std::vector<float> &dc = this->dataColour [pos.x][pos.y];
 			heatToColour (heat, dc [0], dc [1], dc [2]);
-			where.y += this->worldHeat->gridScale;
+			where.y += this->gridScale;
 		}
-		where.x += this->worldHeat->gridScale;
+		where.x += this->gridScale;
 	}
 }
 
 void AssisiPlayground::setDataToDiffusivity ()
 {
 	Vector pos, where;
-	where.x = -this->world->r + this->worldHeat->gridScale;
+	where.x = -this->world->r + this->gridScale;
 	for (pos.x = 0; pos.x < this->dataSize.x; pos.x++) {
-		where.y = -this->world->r + this->worldHeat->gridScale;
+		where.y = -this->world->r + this->gridScale;
 		for (pos.y = 0; pos.y < this->dataSize.y; pos.y++) {
 			double value =
 				(this->worldHeat->getHeatDiffusivityAt (where) - 1.9e-5)
@@ -258,9 +259,9 @@ void AssisiPlayground::setDataToDiffusivity ()
 				* (MAX_HEAT - MIN_HEAT) + MIN_HEAT ;
 			std::vector<float> &dc = this->dataColour [pos.x][pos.y];
 			heatToColour (value, dc [0], dc [1], dc [2]);
-			where.y += this->worldHeat->gridScale;
+			where.y += this->gridScale;
 		}
-		where.x += this->worldHeat->gridScale;
+		where.x += this->gridScale;
 	}
 }
 
@@ -268,9 +269,9 @@ void AssisiPlayground::setDataToVibration ()
 {
 	double time = this->extendedWorld->getAbsoluteTime ();
 	Vector pos, where;
-	where.x = -this->world->r + this->worldHeat->gridScale;
+	where.x = -this->world->r + this->gridScale;
 	for (pos.x = 0; pos.x < this->dataSize.x; pos.x++) {
-		where.y = -this->world->r + this->worldHeat->gridScale;
+		where.y = -this->world->r + this->gridScale;
 		for (pos.y = 0; pos.y < this->dataSize.y; pos.y++) {
 			double vibration = this->extendedWorld->getVibrationAmplitudeAt (where, time);
 			double colour = std::min (vibration / this->maxVibration, 1.0);
@@ -278,18 +279,18 @@ void AssisiPlayground::setDataToVibration ()
 			dc [0] = 0;
 			dc [1] = colour;
 			dc [2] = 0;
-			where.y += this->worldHeat->gridScale;
+			where.y += this->gridScale;
 		}
-		where.x += this->worldHeat->gridScale;
+		where.x += this->gridScale;
 	}
 }
 
 void AssisiPlayground::setDataToAirFlow ()
 {
 	Vector pos, where;
-	where.x = -this->world->r + this->worldHeat->gridScale;
+	where.x = -this->world->r + this->gridScale;
 	for (pos.x = 0; pos.x < this->dataSize.x; pos.x++) {
-		where.y = -this->world->r + this->worldHeat->gridScale;
+		where.y = -this->world->r + this->gridScale;
 		for (pos.y = 0; pos.y < this->dataSize.y; pos.y++) {
 			double airflow = this->extendedWorld->getAirFlowIntensityAt (where);
 			double colour = std::min (airflow / this->MAX_AIR_FLOW, 1.0);
@@ -297,15 +298,15 @@ void AssisiPlayground::setDataToAirFlow ()
 			dc [0] = 0;
 			dc [1] = colour;
 			dc [2] = 0;
-			where.y += this->worldHeat->gridScale;
+			where.y += this->gridScale;
 		}
-		where.x += this->worldHeat->gridScale;
+		where.x += this->gridScale;
 	}
 }
 
 void AssisiPlayground::drawDataAsGradient ()
 {
-	glScaled (this->worldHeat->gridScale, this->worldHeat->gridScale, 1);
+	glScaled (this->gridScale, this->gridScale, 1);
 	Point delta[] = {
 		Point (-1, -1),
 		Point ( 0, -1),
@@ -329,7 +330,7 @@ void AssisiPlayground::drawDataAsGradient ()
 
 void AssisiPlayground::drawDataAsCheckerBoard ()
 {
-	glScaled (this->worldHeat->gridScale, this->worldHeat->gridScale, 1);
+	glScaled (this->gridScale, this->gridScale, 1);
 	Point delta[] = {
 		Point (-0.5, -0.5),
 		Point ( 0.5, -0.5),
