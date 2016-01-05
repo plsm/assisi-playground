@@ -141,7 +141,20 @@ namespace Enki
         ObjectSensorVector object_sensors;
 
         typedef std::vector<CircularCam *> CircularCamVector;
-
+        /**
+         * Fish eyes are modelled by two circular cameras.
+         *
+         * Instance at index 0 points to direction:
+         *
+         * Fish::CAMERA_HALF_FIELD_OF_VIEW - Fish::CAMERA_FIELD_OF_VIEW_OVERLAP
+         *
+         * while instance at index 1 points to direction
+         *
+         * -Fish::CAMERA_HALF_FIELD_OF_VIEW + Fish::CAMERA_FIELD_OF_VIEW_OVERLAP
+         *
+         * Instance at index 0 corresponds to left eye while instance at index 1
+         * corresponds to right eye.
+         */
         CircularCamVector eyes;
 
         /* Properties */

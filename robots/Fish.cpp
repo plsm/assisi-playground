@@ -13,22 +13,22 @@ const double Fish::DISTANCE_BETWEEN_WHEELS = 0.8;
 const double Fish::MAX_SPEED = 50.0;
 const double Fish::NOISE_AMOUNT = 0;
 
-const int Fish::NUMBER_OBJECT_SENSORS = 6;
+const int Fish::NUMBER_OBJECT_SENSORS = 5;
 const double Fish::OBJECT_SENSOR_HEIGHT = 0;
-const double Fish::OBJECT_SENSOR_RANGE = 2;
+const double Fish::OBJECT_SENSOR_RANGE = 20;
 const double Fish::OBJECT_SENSOR_M = 3731;
 const double Fish::OBJECT_SENSOR_X0 = 0.3;
 const double Fish::OBJECT_SENSOR_C = 0.7;
 const double Fish::OBJECT_SENSOR_NOISESD = 0.0;
 
-const double Fish::CAMERA_HEIGHT = 0;
+const double Fish::CAMERA_HEIGHT = 1;
 const double Fish::CAMERA_HALF_FIELD_OF_VIEW = (3 * pi / 4) / 2;
 const double Fish::CAMERA_FIELD_OF_VIEW_OVERLAP = 0;
 const unsigned Fish::CAMERA_PIXEL_COUNT = 10;
 
-const double Fish::COLOUR_RED = 0.6;
-const double Fish::COLOUR_GREEN = 0.6;
-const double Fish::COLOUR_BLUE = 0.6;
+const double Fish::COLOUR_RED = 0.55;
+const double Fish::COLOUR_GREEN = 0.55;
+const double Fish::COLOUR_BLUE = 0.65;
 
 const double Fish::COLLISION_ELASTICITY = 0.1;
 const double Fish::DRY_FRICTION_COEFFICIENT = 0.25;
@@ -72,22 +72,24 @@ Fish::Fish (double scaleFactor) :
     this->PhysicalObject::dryFrictionCoefficient = Fish::DRY_FRICTION_COEFFICIENT;
     // set object sensors
     for (int i = 0; i < NUMBER_OBJECT_SENSORS; i++) {
-        double angle = 2 * pi / i;
+        double angle = pi / 2 - pi * i / NUMBER_OBJECT_SENSORS / 4;
         Vector relativePosition (Fish::LENGTH / 2 * cos (angle), Fish::WIDTH / 2 * sin (angle));
         object_sensors [i] = new ObjectSensor
             (this, relativePosition,
              Fish::OBJECT_SENSOR_HEIGHT, angle, Fish::OBJECT_SENSOR_RANGE,
              Fish::OBJECT_SENSOR_M, Fish::OBJECT_SENSOR_X0, Fish::OBJECT_SENSOR_C,
              Fish::OBJECT_SENSOR_NOISESD);
+        addLocalInteraction (object_sensors [i]);
     }
     // set circular camera
     for (int i = -1; i <= 1; i += 2) {
         angle = i * Fish::CAMERA_HALF_FIELD_OF_VIEW - i * Fish::CAMERA_FIELD_OF_VIEW_OVERLAP;
         Vector relativePosition (Fish::LENGTH / 2 * cos (angle), Fish::WIDTH / 2 * sin (angle));
-        eyes [(i + 1) / 2] = new CircularCam
+        eyes [(-i + 1) / 2] = new CircularCam
             (this, relativePosition,
              Fish::CAMERA_HEIGHT, Fish::angle,
              Fish::CAMERA_HALF_FIELD_OF_VIEW, Fish::CAMERA_PIXEL_COUNT);
+        addLocalInteraction (eyes [(-i + 1) / 2]);
     }
 }
 

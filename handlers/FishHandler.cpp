@@ -149,23 +149,24 @@ namespace Enki
             send_multipart(socket, ca.first, "Color", "ColorVal", data);
             
             /* Publish Circular Camera image */
-            // char *eye[] = {"Left", "Right"};
-            // for (int i = 0; i < 2; i++)
-            // {
-            // 	CircularCam *eye = ca.second->eyes [i];
-            // 	// CircularCameraImage cc;
-            // 	BOOST_FOREACH (double distance, eye->zbuffer) {
-            // 		;
-            // 		// cc.add_distance (distance);
-            // 	}
-            // 	BOOST_FOREACH (Colour c, eye->image) {
-            // 		;
-            // 		// cc.add_pixel (c);
-            // 	}
-            // 	// cc.SerializeToString(&data);
-            // 	// send_multipart(socket, ca.first, "Eye", eye [i], data);
-            // 	// count++;
-            // }
+            const string eye2string [] = {"Left", "Right"};
+            for (int i = 0; i < 2; i++)
+            {
+                CircularCam *eye = ca.second->eyes [i];
+                CircularCameraImage cc;
+                for (int j = eye->zbuffer.size () - 1; j >= 0; j--) {
+                    cc.add_distance (eye->zbuffer [j]);
+                }
+                for (int j = eye->image.size () - 1; j >= 0; j--) {
+                    AssisiMsg::Color *c = cc.add_pixel ();
+                    c->set_red (eye->image [j].r ());
+                    c->set_blue (eye->image [j].b ());
+                    c->set_green (eye->image [j].g ());
+                }
+                cc.SerializeToString (&data);
+                send_multipart (socket, ca.first, "Eye", eye2string [i], data);
+                count++;
+            }
             /* Publish other stuff as necessary */
         }
 

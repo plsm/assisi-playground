@@ -59,3 +59,12 @@ namespace Enki
 }
 
 #endif
+
+// Local Variables: 
+// mode: c++
+// mode: flyspell-prog
+// ispell-local-dictionary: "british"
+// indent-tabs-mode: nil
+// tab-width: 4
+// c-basic-offset: 4
+// End: 
