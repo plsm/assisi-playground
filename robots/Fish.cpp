@@ -35,9 +35,9 @@ const double Fish::DRY_FRICTION_COEFFICIENT = 0.25;
 
 const double Fish::MASS = 10;
 
-const double Fish::WIDTH = 0.8;
-const double Fish::LENGTH = 7;
-const double Fish::HEIGHT = 1.2;
+const double Fish::WIDTH = 0.5;
+const double Fish::LENGTH = 4.5;
+const double Fish::HEIGHT = 1.0;
 
 Fish::Fish (double scaleFactor) :
     DifferentialWheeled (Fish::DISTANCE_BETWEEN_WHEELS, Fish::MAX_SPEED, Fish::NOISE_AMOUNT),
