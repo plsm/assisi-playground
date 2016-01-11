@@ -156,8 +156,10 @@ namespace Enki
             send_multipart(socket, ca.first, "Base", "GroundTruth", data);
 
             /* Publish temperature sensor data */
-            TemperatureArray temps;
-            temps.add_temp(ca.second->heat_sensor->getMeasuredHeat());
+            TemperatureWithGradient temps;
+            temps.set_temp(ca.second->heat_gradient_sensor->getMeasuredHeat());
+				temps.set_dtx (ca.second->heat_gradient_sensor->getMeasuredGradient().x);
+				temps.set_dty (ca.second->heat_gradient_sensor->getMeasuredGradient().y);
             temps.SerializeToString(&data);
             send_multipart(socket, ca.first, "Temp", "Temperatures", data);
 

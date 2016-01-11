@@ -16,9 +16,10 @@ namespace Enki
 {
 	class HeatSensor:
 		// public PhysicalObject,
-		public PhysicInteraction,
-		public Component
+		public virtual PhysicInteraction,
+		public virtual Component
 	{
+	protected:
 		double measuredHeat;
 	public:
 		const double minMeasurableHeat;

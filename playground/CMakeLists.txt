@@ -90,6 +90,7 @@ set(playground_SOURCES AssisiPlaygroundMain.cpp
                        ../interactions/LightSensor.cpp
                        ../interactions/WorldHeat.cpp
                        ../interactions/HeatSensor.cpp
+                       ../interactions/HeatGradientSensor.cpp
                        ../interactions/AbstractGrid.cpp
                        ../interactions/VibrationSource.cpp
                        ../interactions/HeatActuatorMesh.cpp

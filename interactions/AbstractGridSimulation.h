@@ -79,6 +79,13 @@ namespace Enki
 				}
 			}
 		}
+		/**
+		 * Return the value at cell (x,y).
+		 */
+		T cell (int x, int y) const
+		{
+			return this->grid [this->adtIndex][x][y];
+		}
 	};
 }
 

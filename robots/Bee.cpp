@@ -29,6 +29,8 @@ namespace Enki
     /*const*/ double Bee::AIR_FLOW_SENSOR_RANGE = 5;
     const double Bee::AIR_FLOW_SENSOR_ORIENTATION = 0;
 
+    /*const*/ double Bee::HEAT_GRADIENT_SENSOR_RADIUS = 2;
+
     Bee::Bee(double scaleFactor) :
         DifferentialWheeled(0.4, 2, 0.0),
         object_sensors(5),
@@ -79,11 +81,12 @@ namespace Enki
         // Check in the model why is this necessary
         double minMeasurableHeat = 0.0;
         double maxMeasurableHeat = 100.0;
-        heat_sensor = new HeatSensor
+        heat_gradient_sensor = new HeatGradientSensor
            (this, Vector(0,0),
             minMeasurableHeat,
-            maxMeasurableHeat);
-        addPhysicInteraction(heat_sensor);
+            maxMeasurableHeat,
+            HEAT_GRADIENT_SENSOR_RADIUS);
+        addPhysicInteraction(heat_gradient_sensor);
 
         air_flow_sensor = new AirFlowSensor
             (Bee::AIR_FLOW_SENSOR_RANGE,
@@ -111,3 +114,13 @@ namespace Enki
         PhysicalObject::setColor(Color(r,g,b,1));
     }
 }
+
+// Local Variables: 
+// mode: c++
+// mode: flyspell-prog
+// ispell-local-dictionary: "british"
+// indent-tabs-mode: nil
+// tab-width: 4
+// c-basic-offset: 4
+// End: 
+

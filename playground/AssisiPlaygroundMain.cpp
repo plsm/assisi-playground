@@ -203,6 +203,11 @@ int main(int argc, char *argv[])
              po::value<double> (&Bee::SCALE_FACTOR),
              "bee scale factor"
              )
+        (
+             "Bee.heat_gradient_sensor_radius",
+             po::value<double> (&Bee::HEAT_GRADIENT_SENSOR_RADIUS),
+             "bee scale factor"
+             )
 		 (
 		  "Camera.pos_x",
 		  po::value<double> (&cameraPosX),

@@ -7,29 +7,30 @@
 #include <enki/robots/DifferentialWheeled.h>
 #include "extensions/ExtendedRobot.h"
 #include "interactions/ObjectSensor.h"
-#include "interactions/HeatSensor.h"
+#include "interactions/HeatGradientSensor.h"
 #include "interactions/LightSensor.h"
 #include "interactions/AirFlowSensor.h"
 
 namespace Enki
 {
-	
-	/**
-	 * A simplistic bee model.
-	 *
-	 * \ingroup robot */
-	class Bee : public DifferentialWheeled, public ExtendedRobot
-	{
-	public:
-		static double SCALE_FACTOR;
+    /**
+     * A simplistic bee model.
+     *
+     * \ingroup robot */
+    class Bee : public DifferentialWheeled, public ExtendedRobot
+    {
+    public:
+        static double SCALE_FACTOR;
 
-		static const Vector AIR_FLOW_SENSOR_POSITION;
-		static /*const*/ double AIR_FLOW_SENSOR_RANGE;
-		static const double AIR_FLOW_SENSOR_ORIENTATION;
+        static const Vector AIR_FLOW_SENSOR_POSITION;
+        static /*const*/ double AIR_FLOW_SENSOR_RANGE;
+        static const double AIR_FLOW_SENSOR_ORIENTATION;
 
-	public:
+        static /*const*/ double HEAT_GRADIENT_SENSOR_RADIUS;
+
+    public:
         //! Create a Bee
-		Bee(double scaleSize = Bee::SCALE_FACTOR);
+        Bee(double scaleSize = Bee::SCALE_FACTOR);
         
         //! destructor
         virtual ~Bee();
@@ -44,10 +45,10 @@ namespace Enki
         LightSensor* light_sensor_blue;
 
         //! Heat sensor.
-        HeatSensor* heat_sensor;
+        HeatGradientSensor* heat_gradient_sensor;
 
-		  //! Air flow sensor.
-		  AirFlowSensor *air_flow_sensor;
+        //! Air flow sensor.
+        AirFlowSensor *air_flow_sensor;
 
         //! Bee color (useful for diagnostic purposes)
         double color_r_;
@@ -63,7 +64,17 @@ namespace Enki
          * Update the bee color (useful for diagnostic purposes).
          */
         void setColor(double r, double g, double b);
-	};
+    };
 }
 
 #endif
+
+// Local Variables: 
+// mode: c++
+// mode: flyspell-prog
+// ispell-local-dictionary: "british"
+// indent-tabs-mode: nil
+// tab-width: 4
+// c-basic-offset: 4
+// End: 
+

@@ -58,6 +58,7 @@ namespace Enki
 		AbstractGrid (const ExtendedWorld *world, double gridScale, double borderSize);
 
 		virtual ~AbstractGrid () {}
+	public:
 		/**
 		 * Convert a world position to grid position.
 		 */
@@ -66,6 +67,7 @@ namespace Enki
 			x = round ((position.x - this->origin.x) / this->gridScale);
 			y = round ((position.y - this->origin.y) / this->gridScale);
 		}
+	protected:
 		/**
 		 * Scale a world value to grid index.
 		 */
