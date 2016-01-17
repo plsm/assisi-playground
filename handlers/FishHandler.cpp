@@ -155,10 +155,10 @@ namespace Enki
                 CircularCam *eye = ca.second->eyes [i];
                 CircularCameraImage cc;
                 for (int j = eye->zbuffer.size () - 1; j >= 0; j--) {
-                    cc.add_distance (eye->zbuffer [j]);
+                    cc.add_zbuffer (eye->zbuffer [j]);
                 }
                 for (int j = eye->image.size () - 1; j >= 0; j--) {
-                    AssisiMsg::Color *c = cc.add_pixel ();
+                    AssisiMsg::Color *c = cc.add_image ();
                     c->set_red (eye->image [j].r ());
                     c->set_blue (eye->image [j].b ());
                     c->set_green (eye->image [j].g ());
