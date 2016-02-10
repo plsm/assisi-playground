@@ -130,9 +130,6 @@ target_link_libraries(assisi_playground ${enki_LIBRARIES}
 configure_file(Playground.cfg Playground.cfg COPYONLY)
 
 
-
-
-
 ##
 ##
 ##
