@@ -19,6 +19,7 @@ WaveVibrationSource::WaveVibrationSource
 	VibrationSource (range, owner, relativePosition, OMNIDIRECTIONAL),
 	noise (noise),
 	frequency (0),
+	amplitude (0),
 	maximumAmplitude (maximumAmplitude),
 	velocity (velocity),
 	phase (phase),
@@ -29,6 +30,7 @@ WaveVibrationSource::WaveVibrationSource
 WaveVibrationSource::WaveVibrationSource (const WaveVibrationSource& orig):
 	VibrationSource (orig),
 	frequency (orig.frequency),
+	amplitude (orig.amplitude),
 	noise (orig.noise),
 	maximumAmplitude (orig.maximumAmplitude),
 	velocity (orig.velocity),
@@ -53,7 +55,7 @@ double WaveVibrationSource::getWaveAt (const Point &position, double time) const
 	double distance2 = (this->absolutePosition - position).norm2 ();
 	double distance = sqrt (distance2);
 	return
-		this->maximumAmplitude
+		this->amplitude
 		* std::sin (
 			2 * boost::math::constants::pi<double> ()
 			* this->frequency

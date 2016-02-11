@@ -42,15 +42,20 @@ namespace Enki
 		 */
 		double frequency;
 		/**
+		 * Current wave amplitude.  Should be a value between 0 and
+		 * maximumAmplitude.
+		 */
+		double amplitude;
+		/**
 		 * Noise used when setting the frequency.  The real frequency is
 		 * added an uniform number from the range [-n,+n].
 		 */
 		const double noise;
 	public:
 		/**
-		 * Current vibration amplitude of this source.
+		 * Maximum vibration amplitude of this source.
 		 */
-		double maximumAmplitude;
+		const double maximumAmplitude;
 		/**
 		 * Wave speed propagation.
 		 */
@@ -82,14 +87,20 @@ namespace Enki
 		 */
 		void setFrequency (double value);
 
-		double getMaximumAmplitude () const
-		{
-			return this->maximumAmplitude;
-		}
-
 		double getFrequency () const
 		{
 			return this->frequency;
+		}
+
+		/**
+		 * Set the wave amplitude given a fraction.  The real amplitude will be a
+		 * value between 0 and maximumAmplitude.
+		 *
+		 * \pre x should be a value between 0.0 and 1.0.
+		 */
+		void setAmplitudeFraction (double x)
+		{
+			this->amplitude = x * this->maximumAmplitude;
 		}
 
 	private:

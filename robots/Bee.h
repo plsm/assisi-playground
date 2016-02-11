@@ -10,6 +10,7 @@
 #include "interactions/HeatSensor.h"
 #include "interactions/LightSensor.h"
 #include "interactions/AirFlowSensor.h"
+#include "interactions/VibrationSensor.h"
 
 namespace Enki
 {
@@ -25,6 +26,19 @@ namespace Enki
 		static const Vector AIR_FLOW_SENSOR_POSITION;
 		static /*const*/ double AIR_FLOW_SENSOR_RANGE;
 		static const double AIR_FLOW_SENSOR_ORIENTATION;
+
+        static const int NUMBER_VIBRATION_SENSORS;
+        static double VIBRATION_SENSOR_RANGE;
+       /**
+        * Casu vibration sensors relative position in cm.
+        */
+       static const Vector VIBRATION_SENSOR_POSITION[];
+       /**
+        * Maximum vibration frequency measured by casu vibration sensors.
+        */
+       static /*const*/ double VIBRATION_SENSOR_MAX_MEASURABLE_FREQUENCY;
+       static /*const*/ double VIBRATION_SENSOR_AMPLITUDE_STANDARD_DEVIATION_GAUSSIAN_NOISE;
+       static /*const*/ double VIBRATION_SENSOR_FREQUENCY_STANDARD_DEVIATION_GAUSSIAN_NOISE;
 
 	public:
         //! Create a Bee
@@ -48,6 +62,10 @@ namespace Enki
 
         //! Air flow sensor.
         AirFlowSensor *air_flow_sensor;
+
+        typedef std::vector<VibrationSensor *> VibrationSensorVector;
+        //! Vibration sensors
+        VibrationSensorVector vibration_sensors;
 
         //! Bee color (useful for diagnostic purposes)
         double color_r_;
@@ -74,3 +92,12 @@ namespace Enki
 }
 
 #endif
+
+// Local Variables:
+// mode: c++
+// mode: flyspell-prog
+// ispell-local-dictionary: "british"
+// indent-tabs-mode: nil
+// tab-width: 4
+// c-basic-offset: 4
+// End:

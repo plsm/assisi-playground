@@ -155,12 +155,14 @@ namespace Enki
             pose.mutable_pose()->mutable_orientation()->set_z(ca.second->angle);
             pose.SerializeToString(&data);
             send_multipart(socket, ca.first, "Base", "GroundTruth", data);
+            count++;
 
             /* Publish temperature sensor data */
             TemperatureArray temps;
             temps.add_temp(ca.second->heat_sensor->getMeasuredHeat());
             temps.SerializeToString(&data);
             send_multipart(socket, ca.first, "Temp", "Temperatures", data);
+            count++;
 
             /* Publish Diagnostic color "actuator" set value */
             ColorStamped color;
@@ -169,13 +171,33 @@ namespace Enki
             color.mutable_color()->set_blue(ca.second->color_b_);
             color.SerializeToString(&data);
             send_multipart(socket, ca.first, "Color", "ColorVal", data);
+            count++;
+
+            /* Publish vibration readings */
+            VibrationReadingArray vibrations;
+            BOOST_FOREACH (VibrationSensor *vs, ca.second->vibration_sensors)
+            {
+                VibrationReading *vibrationReading = vibrations.add_reading ();
+                const std::vector<double> &amplitudes = vs->getAmplitude ();
+                const std::vector<double> &frequencies = vs->getFrequency ();
+                BOOST_FOREACH (double a, vs->getAmplitude ())
+                    vibrationReading->add_amplitude (a);
+                BOOST_FOREACH (double f, vs->getFrequency ())
+                    vibrationReading->add_freq (f);
+                // TODO
+                //  add vibration amplitude standard deviation
+            }
+            vibrations.SerializeToString (&data);
+            zmq::send_multipart (socket, ca.first, "Acc", "Measurements", data);
+            count++;
 
             /* Publish air flow sensor */
             AirflowReading airflowReading;
-				airflowReading.set_intensity (ca.second->air_flow_sensor->intensity.norm ());
-				airflowReading.set_direction (ca.second->air_flow_sensor->intensity.angle ());
-				airflowReading.SerializeToString (&data);
-				send_multipart (socket, ca.first, "Airflow", "Reading", data);
+            airflowReading.set_intensity (ca.second->air_flow_sensor->intensity.norm ());
+            airflowReading.set_direction (ca.second->air_flow_sensor->intensity.angle ());
+            airflowReading.SerializeToString (&data);
+            send_multipart (socket, ca.first, "Airflow", "Reading", data);
+            count++;
 
             /* Publish other stuff as necessary */
         }
@@ -200,3 +222,12 @@ namespace Enki
 // -----------------------------------------------------------------------------
 
 }
+
+// Local Variables:
+// mode: c++
+// mode: flyspell-prog
+// ispell-local-dictionary: "british"
+// indent-tabs-mode: nil
+// tab-width: 4
+// c-basic-offset: 4
+// End:

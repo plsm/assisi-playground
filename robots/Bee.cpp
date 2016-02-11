@@ -28,12 +28,25 @@ namespace Enki
     /*const*/ double Bee::AIR_FLOW_SENSOR_RANGE = 5;
     const double Bee::AIR_FLOW_SENSOR_ORIENTATION = 0;
 
+    const int Bee::NUMBER_VIBRATION_SENSORS = 4;
+    double Bee::VIBRATION_SENSOR_RANGE = 100;
+    const Vector Bee::VIBRATION_SENSOR_POSITION[] = {
+        Vector (-2.5,  0),
+        Vector ( 2.5,  0),
+        Vector (   0, -2.5),
+        Vector (   0,  2.5)
+    };
+    /*const*/ double Bee::VIBRATION_SENSOR_MAX_MEASURABLE_FREQUENCY = 500;
+    /*const*/ double Bee::VIBRATION_SENSOR_AMPLITUDE_STANDARD_DEVIATION_GAUSSIAN_NOISE = 0;
+    /*const*/ double Bee::VIBRATION_SENSOR_FREQUENCY_STANDARD_DEVIATION_GAUSSIAN_NOISE = 0;
+
     Bee::Bee(double body_length, double body_width, double body_height,
              double body_mass, double max_speed) :
         len_(body_length), w_(body_width), h_(body_height),
         m_(body_mass), v_max_(max_speed),
         DifferentialWheeled(body_width, max_speed, 0.0),
         object_sensors(5),
+        vibration_sensors (Bee::NUMBER_VIBRATION_SENSORS),
         color_r_(0.93), color_g_(0.79), color_b_(0)
     {
         collisionElasticity = 0.1;
@@ -82,6 +95,18 @@ namespace Enki
             maxMeasurableHeat);
         addPhysicInteraction(heat_sensor);
 
+        // Add vibration sensors
+        for (int i = 0; i < Bee::NUMBER_VIBRATION_SENSORS; i++) {
+            VibrationSensor *vs = new VibrationSensor 
+                (Bee::VIBRATION_SENSOR_RANGE, this,
+                 Bee::VIBRATION_SENSOR_POSITION [i], 0,
+                 Bee::VIBRATION_SENSOR_MAX_MEASURABLE_FREQUENCY,
+                 Bee::VIBRATION_SENSOR_AMPLITUDE_STANDARD_DEVIATION_GAUSSIAN_NOISE,
+                 Bee::VIBRATION_SENSOR_FREQUENCY_STANDARD_DEVIATION_GAUSSIAN_NOISE);
+            this->vibration_sensors [i] = vs;
+            addLocalInteraction (vs);
+        }
+
         air_flow_sensor = new AirFlowSensor
             (Bee::AIR_FLOW_SENSOR_RANGE,
              this,
@@ -108,3 +133,12 @@ namespace Enki
         PhysicalObject::setColor(Color(r,g,b,1));
     }
 }
+
+// Local Variables:
+// mode: c++
+// mode: flyspell-prog
+// ispell-local-dictionary: "british"
+// indent-tabs-mode: nil
+// tab-width: 4
+// c-basic-offset: 4
+// End:

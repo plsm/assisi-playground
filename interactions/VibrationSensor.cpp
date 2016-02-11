@@ -85,12 +85,12 @@ objectStep (double dt, Enki::World* w, Enki::PhysicalObject *po)
 		value = gaussianRand (value, fabs (value * this->amplitudeStandardDeviationGaussianNoise));
 		this->amplitudeValues.push_back (value);
 	}
-	this->totalElapsedTime += dt;
 }
 
 void VibrationSensor::
 finalize (double dt, Enki::World* w)
 {
+	this->totalElapsedTime += dt;
 }
 
 

@@ -126,12 +126,23 @@ namespace Enki
         }
         else if (device == "VibeMotor")
         {
-            if (command == "on")
+            if (command == "On")
             {
                 VibrationSetpoint freq_msg;
                 assert (freq_msg.ParseFromString (data));
                 casus_[name]->vibration_source->setFrequency (freq_msg.freq ());
+                casus_[name]->vibration_source->setAmplitudeFraction (freq_msg.amplitude ());
                 count++;
+            }
+            else if (command == "Off")
+            {
+                casus_[name]->vibration_source->setFrequency (0);
+                casus_[name]->vibration_source->setAmplitudeFraction (0);
+                count++;
+            }
+            else
+            {
+                cerr << "Unknown command " << command << " for " << name << "/" << device << endl;
             }
         }
         else if (device == "Airflow")
@@ -193,15 +204,15 @@ namespace Enki
             VibrationReadingArray vibrations;
             BOOST_FOREACH (VibrationSensor *vs, ca.second->vibration_sensors)
             {
-					VibrationReading *vibrationReading = vibrations.add_reading ();
-               const std::vector<double> &amplitudes = vs->getAmplitude ();
-               const std::vector<double> &frequencies = vs->getFrequency ();
-               BOOST_FOREACH (double a, vs->getAmplitude ())
-                  vibrationReading->add_amplitude (a);
-               BOOST_FOREACH (double f, vs->getFrequency ())
-                  vibrationReading->add_freq (f);
-					// TODO
-					//  add vibration amplitude standard deviation
+                VibrationReading *vibrationReading = vibrations.add_reading ();
+                const std::vector<double> &amplitudes = vs->getAmplitude ();
+                const std::vector<double> &frequencies = vs->getFrequency ();
+                BOOST_FOREACH (double a, vs->getAmplitude ())
+                    vibrationReading->add_amplitude (a);
+                BOOST_FOREACH (double f, vs->getFrequency ())
+                    vibrationReading->add_freq (f);
+                // TODO
+                //  add vibration amplitude standard deviation
             }
             vibrations.SerializeToString (&data);
             zmq::send_multipart (socket, ca.first, "Acc", "Measurements", data);
@@ -254,5 +265,10 @@ namespace Enki
 }
 
 // Local Variables: 
+// mode: c++
+// mode: flyspell-prog
+// ispell-local-dictionary: "british"
 // indent-tabs-mode: nil
+// tab-width: 4
+// c-basic-offset: 4
 // End: 

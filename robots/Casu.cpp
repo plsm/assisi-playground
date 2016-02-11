@@ -197,6 +197,7 @@ namespace Enki
                  Casu::VIBRATION_SENSOR_AMPLITUDE_STANDARD_DEVIATION_GAUSSIAN_NOISE,
                  Casu::VIBRATION_SENSOR_FREQUENCY_STANDARD_DEVIATION_GAUSSIAN_NOISE);
             this->vibration_sensors [i] = vs;
+            addLocalInteraction (vs);
         }
 
         // Add air pump actuator
