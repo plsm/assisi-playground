@@ -36,6 +36,10 @@ namespace Enki
 		 */
 		std::vector<PhysicInteraction *> physicInteractions;
 	public:
+		/**
+		 * Unique identifier.  This can be used to sort robots.
+		 */
+		const int id;
 		ExtendedRobot ();
 		ExtendedRobot (const ExtendedRobot& orig);
 		virtual ~ExtendedRobot();

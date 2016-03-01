@@ -63,3 +63,11 @@ double WaveVibrationSource::getWaveAt (const Point &position, double time) const
 		)
 		/ (1 + distance2 * this->amplitudeQuadraticDecay);
 }
+
+double WaveVibrationSource::getMaxAbsoluteAmplitudeAt (const Point &position) const
+{
+	double distance2 = (this->absolutePosition - position).norm2 ();
+	return
+		this->amplitude
+		/ (1 + distance2 * this->amplitudeQuadraticDecay);
+}

@@ -26,6 +26,15 @@ namespace Enki
 		: public LocalInteraction,
 		  public Component
 	{
+	public:
+		struct Measure
+		{
+			double amplitude;
+			double frequency;
+			double maxAbsAmplitude;
+			int id;
+		};
+	private:
 		/**
 		 * How much time has passed.  The enki simulator does not store how
 		 * many time has passed.  The local interaction only receives delta
@@ -50,24 +59,28 @@ namespace Enki
 		 * perceived vibration frequency.
 		 */
 		const double frequencyStandardDeviationGaussianNoise;
+		// /**
+		//  * Measured amplitude in the current simulation iteration.
+		//  *
+		//  * <p> This field is set to zero at the beginning of each time step.
+		//  * For each object that is a vibration actuator we update this
+		//  * attribute with the sensed vibration according to the vibration
+		//  * model.
+		//  */
+		// std::vector<double> amplitudeValues;
+		// /**
+		//  * Measured frequency in the current simulation iteration.
+		//  *
+		//  * <p> This field is set to zero at the beginning of each time step.
+		//  * For each object that is a vibration actuator we update this
+		//  * attribute with the sensed vibration according to the vibration
+		//  * model.
+		//  */
+		// std::vector<double> frequencyValues;
 		/**
-		 * Measured amplitude in the current simulation iteration.
-		 *
-		 * <p> This field is set to zero at the beginning of each time step.
-		 * For each object that is a vibration actuator we update this
-		 * attribute with the sensed vibration according to the vibration
-		 * model.
+		 * Vibration measures for each vibration actuator in the world.
 		 */
-		std::vector<double> amplitudeValues;
-		/**
-		 * Measured frequency in the current simulation iteration.
-		 *
-		 * <p> This field is set to zero at the beginning of each time step.
-		 * For each object that is a vibration actuator we update this
-		 * attribute with the sensed vibration according to the vibration
-		 * model.
-		 */
-		std::vector<double> frequencyValues;
+		std::vector<Measure> measureData;
 	public:
 		VibrationSensor (
 			double range, Enki::Robot* owner,
@@ -79,19 +92,27 @@ namespace Enki
 		VibrationSensor (const VibrationSensor& orig);
 
 		virtual ~VibrationSensor ();
-		/**
-		 * Return the amplitude of the vibration sensed by this sensor.
-		 */
-		const std::vector<double> &getAmplitude () const
+		// /**
+		//  * Return the amplitude of the vibration sensed by this sensor.
+		//  */
+		// const std::vector<double> &getAmplitude () const
+		// {
+		// 	return this->amplitudeValues;
+		// }
+		// /**
+		//  * Return the frequency of the vibration sensed by this sensor.
+		//  */
+		// const std::vector<double> &getFrequency () const
+		// {
+		// 	return this->frequencyValues;
+		// }
+		const std::vector<Measure> &getMeasure () const
 		{
-			return this->amplitudeValues;
+			return this->measureData;
 		}
-		/**
-		 * Return the frequency of the vibration sensed by this sensor.
-		 */
-		const std::vector<double> &getFrequency () const
+		const Measure &getMeasure (int index) const
 		{
-			return this->frequencyValues;
+			return this->measureData [index];
 		}
 		/**
 		 * Initialise the measured amplitude and frequency in the current

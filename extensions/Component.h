@@ -81,7 +81,7 @@ namespace Enki
 		double getRelativeOrientation () const
 		{
 			return this->relativeOrientation;
-		}	
+		}
 		/**
 		 *  Reset absolute position of this component.  Called every {@code w->step()}.
 		 */

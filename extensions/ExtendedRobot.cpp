@@ -5,17 +5,40 @@
  * Created on 17 de Fevereiro de 2014, 18:32
  */
 
+#include <boost/interprocess/sync/interprocess_mutex.hpp>
+
 #include "ExtendedRobot.h"
 
 using namespace Enki;
 
+/**
+ * Robot id generator.
+ */
+static int idGenerator = 0;
+
+/**
+ * Mutex used to obtain a new robot identifier.
+ */
+static boost::interprocess::interprocess_mutex idMutex;
+
+int nextId ()
+{
+	int result;
+	idMutex.lock ();
+	result = idGenerator++;
+	idMutex.lock ();
+	return result;
+}
+
 ExtendedRobot::
-ExtendedRobot ()
+ExtendedRobot ():
+	id (nextId ())
 {
 }
 
 ExtendedRobot::
-ExtendedRobot (const ExtendedRobot& orig)
+ExtendedRobot (const ExtendedRobot& orig):
+	id (nextId ())
 {
 }
 

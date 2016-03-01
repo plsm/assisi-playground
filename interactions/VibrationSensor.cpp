@@ -4,8 +4,14 @@
 #include "VibrationSensor.h"
 #include "VibrationSource.h"
 #include "WaveVibrationSource.h"
+#include "ExtendedRobot.h"
 
 using namespace Enki;
+
+static bool measureComparator (const VibrationSensor::Measure &a, const VibrationSensor::Measure &b)
+{
+	return a.id < b.id;
+}
 
 VibrationSensor::
 VibrationSensor
@@ -18,8 +24,9 @@ VibrationSensor
 	maxMeasurableFrequency (maxMeasurableFrequency),
 	amplitudeStandardDeviationGaussianNoise (amplitudeStandardDeviationGaussianNoise),
 	frequencyStandardDeviationGaussianNoise (frequencyStandardDeviationGaussianNoise),
-	amplitudeValues (),
-	frequencyValues (),
+	// amplitudeValues (),
+	// frequencyValues (),
+	measureData (),
 	totalElapsedTime (0)
 {
 }
@@ -30,8 +37,9 @@ VibrationSensor::VibrationSensor (const VibrationSensor& orig):
 	maxMeasurableFrequency (orig.maxMeasurableFrequency),
 	amplitudeStandardDeviationGaussianNoise (orig.amplitudeStandardDeviationGaussianNoise),
 	frequencyStandardDeviationGaussianNoise (orig.frequencyStandardDeviationGaussianNoise),
-	amplitudeValues (0),
-	frequencyValues (0),
+	// amplitudeValues (0),
+	// frequencyValues (0),
+	measureData (),
 	totalElapsedTime (0)
 {
 }
@@ -43,8 +51,7 @@ VibrationSensor::~VibrationSensor ()
 void VibrationSensor::
 init (double dt, Enki::World* w)
 {
-	this->amplitudeValues.clear ();
-	this->frequencyValues.clear ();
+	this->measureData.clear ();
 	Component::init ();
 	// std::cout << "initialisation step for vibration sensor " << this->value << '\n';
 }
@@ -77,13 +84,26 @@ objectStep (double dt, Enki::World* w, Enki::PhysicalObject *po)
 	double value;
 	WaveVibrationSource *waveVibrationSource = dynamic_cast<WaveVibrationSource *>(po);
 	if (waveVibrationSource != NULL) {
+		Measure measure;
 		value = waveVibrationSource->getFrequency ();
 		value = std::min (value, this->maxMeasurableFrequency);
 		value = gaussianRand (value, value * this->frequencyStandardDeviationGaussianNoise);
-		this->frequencyValues.push_back (value);
+		measure.frequency = value;
+		// this->frequencyValues.push_back (value);
 		value = waveVibrationSource->getWaveAt (this->absolutePosition, this->totalElapsedTime);
 		value = gaussianRand (value, fabs (value * this->amplitudeStandardDeviationGaussianNoise));
-		this->amplitudeValues.push_back (value);
+		measure.amplitude = value;
+		// this->amplitudeValues.push_back (value);
+		measure.maxAbsAmplitude = waveVibrationSource->getMaxAbsoluteAmplitudeAt (this->absolutePosition);
+
+		const ExtendedRobot *owner = dynamic_cast<const ExtendedRobot *> (vibrationSource->Component::owner);
+		if (owner != NULL) {
+			measure.id = owner->id;
+		}
+		else {
+			measure.id = -1;
+		}
+		this->measureData.push_back (measure);
 	}
 }
 
@@ -91,6 +111,7 @@ void VibrationSensor::
 finalize (double dt, Enki::World* w)
 {
 	this->totalElapsedTime += dt;
+	std::sort (this->measureData.begin (), this->measureData.end (), measureComparator);
 }
 
 

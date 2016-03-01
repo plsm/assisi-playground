@@ -29,7 +29,7 @@ using namespace AssisiMsg;
 
 namespace Enki
 {
-	extern double env_temp;
+    extern double env_temp;
 
     /* virtual */
     string CasuHandler::createObject(const std::string& data, 
@@ -205,12 +205,17 @@ namespace Enki
             BOOST_FOREACH (VibrationSensor *vs, ca.second->vibration_sensors)
             {
                 VibrationReading *vibrationReading = vibrations.add_reading ();
-                const std::vector<double> &amplitudes = vs->getAmplitude ();
-                const std::vector<double> &frequencies = vs->getFrequency ();
-                BOOST_FOREACH (double a, vs->getAmplitude ())
-                    vibrationReading->add_amplitude (a);
-                BOOST_FOREACH (double f, vs->getFrequency ())
-                    vibrationReading->add_freq (f);
+                // const std::vector<double> &amplitudes = vs->getAmplitude ();
+                // const std::vector<double> &frequencies = vs->getFrequency ();
+                BOOST_FOREACH (const VibrationSensor::Measure &m, vs->getMeasure ()) {
+                    vibrationReading->add_amplitude (m.amplitude);
+                    vibrationReading->add_freq (m.frequency);
+                    vibrationReading->add_max_abs_aplitude (m.maxAbsAmplitude);
+                }
+                // BOOST_FOREACH (double a, vs->getAmplitude ())
+                //     vibrationReading->add_amplitude (a);
+                // BOOST_FOREACH (double f, vs->getFrequency ())
+                //     vibrationReading->add_freq (f);
                 // TODO
                 //  add vibration amplitude standard deviation
             }

@@ -80,7 +80,10 @@ namespace Enki
 		virtual ~WaveVibrationSource ();
 
 		virtual double getWaveAt (const Point &position, double time) const;
-
+		/**
+		 * Return the maximum absolute amplitude that can be measured at the given point.
+		 */
+		double getMaxAbsoluteAmplitudeAt (const Point &position) const;
 		/**
 		 * Sets the frequency of this wave source.  The real frequency
 		 * depends on the random noise parameter.
