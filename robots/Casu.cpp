@@ -70,7 +70,8 @@ namespace Enki
     /*const*/ double Casu::PELTIER_THERMAL_RESPONSE = 0.3;
     const double Casu::PELTIER_RADIUS = 1.6;
 
-    Casu::Casu(Vector pos, double yaw, ExtendedWorld* world, double ambientTemperature, int bridgeMask) :
+    Casu::Casu(const std::string &name, Vector pos, double yaw, ExtendedWorld* world, double ambientTemperature, int bridgeMask) :
+        ExtendedRobot (name),
         world_(world),
         range_sensors(6),
         vibration_sensors (Casu::NUMBER_VIBRATION_SENSORS),

@@ -99,9 +99,11 @@ objectStep (double dt, Enki::World* w, Enki::PhysicalObject *po)
 		const ExtendedRobot *owner = dynamic_cast<const ExtendedRobot *> (vibrationSource->Component::owner);
 		if (owner != NULL) {
 			measure.id = owner->id;
+			measure.source = owner->name;
 		}
 		else {
 			measure.id = -1;
+			measure.source = "null";
 		}
 		this->measureData.push_back (measure);
 	}

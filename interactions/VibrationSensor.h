@@ -33,6 +33,7 @@ namespace Enki
 			double frequency;
 			double maxAbsAmplitude;
 			int id;
+			std::string source;
 		};
 	private:
 		/**

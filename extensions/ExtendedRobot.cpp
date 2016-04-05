@@ -21,24 +21,26 @@ static int idGenerator = 0;
  */
 static boost::interprocess::interprocess_mutex idMutex;
 
-int nextId ()
+static int nextId ()
 {
 	int result;
 	idMutex.lock ();
 	result = idGenerator++;
-	idMutex.lock ();
+	idMutex.unlock ();
 	return result;
 }
 
 ExtendedRobot::
-ExtendedRobot ():
-	id (nextId ())
+ExtendedRobot (const std::string &name):
+	id (nextId ()),
+	name (name)
 {
 }
 
 ExtendedRobot::
 ExtendedRobot (const ExtendedRobot& orig):
-	id (nextId ())
+	id (nextId ()),
+	name (orig.name)
 {
 }
 

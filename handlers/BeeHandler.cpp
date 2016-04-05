@@ -42,7 +42,7 @@ namespace Enki
             Point pos(spawn_msg.pose().position().x(),
                       spawn_msg.pose().position().y());
             double yaw(spawn_msg.pose().orientation().z());
-            bees_[name] = new Bee(body_length_,body_width_,body_height_,
+            bees_[name] = new Bee(name, body_length_,body_width_,body_height_,
                                   body_mass_, max_speed_);
             bees_[name]->pos = pos;
             bees_[name]->angle = yaw;
@@ -181,7 +181,9 @@ namespace Enki
                 BOOST_FOREACH (const VibrationSensor::Measure &m, vs->getMeasure ()) {
                     vibrationReading->add_amplitude (m.amplitude);
                     vibrationReading->add_freq (m.frequency);
-                    vibrationReading->add_max_abs_aplitude (m.maxAbsAmplitude);
+                    vibrationReading->add_max_abs_amplitude (m.maxAbsAmplitude);
+                    vibrationReading->add_source (m.source);
+                    // TODO: amplitude standard deviation
                 }
             }
             vibrations.SerializeToString (&data);

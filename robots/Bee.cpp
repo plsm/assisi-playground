@@ -40,8 +40,9 @@ namespace Enki
     /*const*/ double Bee::VIBRATION_SENSOR_AMPLITUDE_STANDARD_DEVIATION_GAUSSIAN_NOISE = 0;
     /*const*/ double Bee::VIBRATION_SENSOR_FREQUENCY_STANDARD_DEVIATION_GAUSSIAN_NOISE = 0;
 
-    Bee::Bee(double body_length, double body_width, double body_height,
+    Bee::Bee(const std::string &name, double body_length, double body_width, double body_height,
              double body_mass, double max_speed) :
+        ExtendedRobot (name),
         len_(body_length), w_(body_width), h_(body_height),
         m_(body_mass), v_max_(max_speed),
         DifferentialWheeled(body_width, max_speed, 0.0),

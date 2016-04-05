@@ -42,7 +42,7 @@ namespace Enki
 
 	public:
         //! Create a Bee
-		Bee(double body_length, double body_width, double body_height,
+		Bee(const std::string &name, double body_length, double body_width, double body_height,
             double body_mass, double max_speed);
         
         //! destructor

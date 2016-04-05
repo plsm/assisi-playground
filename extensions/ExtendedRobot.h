@@ -8,6 +8,8 @@
 #ifndef __EXTENDED_ROBOT_H
 #define __EXTENDED_ROBOT_H
 
+#include <string>
+
 #include <enki/PhysicalEngine.h>
 
 #include "PhysicInteraction.h"
@@ -40,7 +42,11 @@ namespace Enki
 		 * Unique identifier.  This can be used to sort robots.
 		 */
 		const int id;
-		ExtendedRobot ();
+		/**
+		 * Name of this robot.
+		 */
+		const std::string name;
+		ExtendedRobot (const std::string &name);
 		ExtendedRobot (const ExtendedRobot& orig);
 		virtual ~ExtendedRobot();
 
