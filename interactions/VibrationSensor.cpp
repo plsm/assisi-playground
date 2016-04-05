@@ -10,7 +10,7 @@ using namespace Enki;
 
 static bool measureComparator (const VibrationSensor::Measure &a, const VibrationSensor::Measure &b)
 {
-	return a.id < b.id;
+	return (a.source < b.source) || ((a.source == b.source) && (a.id < b.id));
 }
 
 VibrationSensor::
