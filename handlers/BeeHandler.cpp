@@ -42,7 +42,8 @@ namespace Enki
             Point pos(spawn_msg.pose().position().x(),
                       spawn_msg.pose().position().y());
             double yaw(spawn_msg.pose().orientation().z());
-            bees_[name] = new Bee;
+            bees_[name] = new Bee(body_length_,body_width_,body_height_,
+                                  body_mass_, max_speed_);
             bees_[name]->pos = pos;
             bees_[name]->angle = yaw;
             world->addObject(bees_[name]);
@@ -157,7 +158,10 @@ namespace Enki
 
             /* Publish temperature sensor data */
             TemperatureArray temps;
-            temps.add_temp(ca.second->heat_sensor->getMeasuredHeat());
+            BOOST_FOREACH(HeatSensor* hs, ca.second->heat_sensors)
+            {
+                temps.add_temp(hs->getMeasuredHeat());
+            }
             temps.SerializeToString(&data);
             send_multipart(socket, ca.first, "Temp", "Temperatures", data);
 

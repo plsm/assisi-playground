@@ -32,9 +32,11 @@ namespace Enki
                        const string& pub_address, 
                        const string& sub_address,
                        const Color& wallsColor, 
-                       const World::GroundTexture& groundTexture)
-        : ExtendedWorld(r, wallsColor, groundTexture),
-          pub_address_(pub_address), sub_address_(sub_address)
+                       const World::GroundTexture& groundTexture,
+                       unsigned int skewMonitorRate,
+                       double skewReportThreshold)
+         : ExtendedWorld(r, wallsColor, groundTexture, skewMonitorRate, skewReportThreshold),
+           pub_address_(pub_address), sub_address_(sub_address), pub_td_(0.3), pub_timer_(0.0)
     {
         GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -120,15 +122,21 @@ namespace Enki
                                  command, data, ZMQ_DONTWAIT);
         }
 
-        // Publish sensor data
-        int out_count = 0;
-
-        // Invoke all handlers to send messages
-        BOOST_FOREACH(const HandlerMap::value_type& rh, handlers_)
+        pub_timer_ += dt;
+        if (pub_timer_ >= pub_td_)
         {
-            rh.second->sendOutgoing(*publisher_);
-        }
 
+            // Publish sensor data
+            int out_count = 0;
+
+            sendSim_ (*publisher_);
+            // Invoke all handlers to send messages
+            BOOST_FOREACH(const HandlerMap::value_type& rh, handlers_)
+            {
+                rh.second->sendOutgoing(*publisher_);
+            }
+            pub_timer_ = 0.0;
+        }
     }
 
 // -----------------------------------------------------------------------------
@@ -200,6 +208,18 @@ namespace Enki
         return true;
     }
 
+    int WorldExt::sendSim_(zmq::socket_t& socket)
+    {
+        Time sd;
+        double at = this->getAbsoluteTime ();
+        long int sec = trunc (at);
+        long int nsec = (at - sec) * 1000000000;
+        sd.set_sec (sec);
+        sd.set_nsec (nsec);
+        std::string data;
+        sd.SerializeToString (&data);
+        zmq::send_multipart (socket, "Sim", "AbsoluteTime", "Value", data);
+    }
 // -----------------------------------------------------------------------------
 
 }
