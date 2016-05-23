@@ -101,9 +101,11 @@ int main(int argc, char *argv[])
 	// Create the world and the viewer
     string pub_address("tcp://*:5555"); 
     string sub_address("tcp://*:5556");
+    // heat model parameters;
     string heat_log_file_name;
     double heat_scale;
     int heat_border_size;
+    char heatMode;
 
     double maxVibration;
     double parallelismLevel = 1.0;
@@ -161,6 +163,11 @@ int main(int argc, char *argv[])
             "Heat.cell_dissipation",
             po::value<double> (&WorldHeat::CELL_DISSIPATION),
             "heat lost by cells directly to outside world"
+            )
+        (
+            "Heat.mode",
+            po::value<char> (&heatMode),
+            "mode the heat model should run. Valid options are: 'N' no heat model; 'S' static heat model; 'D' dynamic heat model (default)"
             )
         (
             "AirFlow.pump_range",
@@ -293,11 +300,19 @@ int main(int argc, char *argv[])
         skewMonitorRate,
         skewReportThreshold);
 
-    heatModel = new WorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel);
-	if (heat_log_file_name != "") {
-		heatModel->logToStream (heat_log_file_name);
-	}
-	world->addPhysicSimulation(heatModel);
+    switch (heatMode) {
+    case 'S':
+    case 'F':
+       heatModel = new WorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel);
+       if (heat_log_file_name != "") {
+          heatModel->logToStream (heat_log_file_name);
+       }
+       world->addPhysicSimulation(heatModel);
+       break;
+    case 'N':
+       heatModel = NULL;
+       break;
+    }
 
 	CasuHandler *ch = new CasuHandler();
 	world->addHandler("Casu", ch);
@@ -313,7 +328,7 @@ int main(int argc, char *argv[])
 		QApplication app(argc, argv);
 
 		AssisiPlayground viewer (world, heatModel, maxVibration);
-		if (!heatModel->validParameters (viewer.timerPeriodMs / 1000.)) {
+		if (heatModel != NULL && !heatModel->validParameters (viewer.timerPeriodMs / 1000.)) {
 			cerr << "Parameters of heat model are not valid!\nExiting.\n";
 			return 1;
 		}
@@ -347,7 +362,7 @@ int main(int argc, char *argv[])
 		return app.exec();
 	}
 	else {
-		if (!heatModel->validParameters (DELTA_TIME)) {
+		if (heatModel != NULL && !heatModel->validParameters (DELTA_TIME)) {
 			cerr << "Parameters of heat model are not valid!\nExiting.\n";
 			return 1;
 		}
@@ -361,7 +376,8 @@ int main(int argc, char *argv[])
 		}
 		/* clean up */
 		delete world;
-		delete heatModel;
+		if (heatModel != NULL)
+         delete heatModel;
 		cout << "Simulator finished CORRECTLY!!!\n";
 		return ret;
 	}
@@ -466,3 +482,7 @@ int runTimer ()
 	setitimer (ITIMER_REAL, &value, NULL);
 	return 0;
 }
+
+// Local Variables: 
+// indent-tabs-mode: nil
+// End: 
