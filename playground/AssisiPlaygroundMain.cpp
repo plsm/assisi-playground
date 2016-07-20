@@ -61,6 +61,9 @@ static double timerPeriod = 0.01;
 static double cameraPosX = 0;
 static double cameraPosY = 0;
 static double cameraAltitude = 1;
+static double cameraYaw = 0;
+static double cameraPitch = M_PI/2;
+
 static char layer = 'N';
 
 /**
@@ -102,6 +105,7 @@ int main(int argc, char *argv[])
     string pub_address("tcp://*:5555"); 
     string sub_address("tcp://*:5556");
     // heat model parameters;
+	 string heat_state_filename;
     string heat_log_file_name;
     double heat_scale;
     int heat_border_size;
@@ -144,6 +148,9 @@ int main(int argc, char *argv[])
          "Address for subscribing to commands, in the form tcp://hostname:port")
         ("Arena.radius,r", po::value<int>(&r), 
          "playground radius, in cm")
+        ("Heat.state", po::value<string>(&heat_state_filename)->default_value (""), 
+         "use heat state stored in given filename")
+
         ("Heat.env_temp,t", po::value<double>(&env_temp), 
          "environment temperature, in C")
         ("Heat.scale", po::value<double>(&heat_scale), 
@@ -264,6 +271,21 @@ int main(int argc, char *argv[])
            "camera altitude"
             )
         (
+           "Camera.yaw",
+           po::value<double> (&cameraYaw),
+           "camera yaw"
+            )
+        (
+           "Camera.pitch",
+           po::value<double> (&cameraPitch),
+           "camera pitch"
+            )
+        (
+             "Skew.rate",
+             po::value<unsigned int> (&skewMonitorRate),
+             "Rate at which we check skewness between real time and simulated time"
+             )
+        (
              "Skew.threshold",
              po::value<double> (&skewReportThreshold),
              "Threshold to print a message because of skewness between real time and simulated time"
@@ -303,7 +325,17 @@ int main(int argc, char *argv[])
     switch (heatMode) {
     case 'S':
     case 'F':
-       heatModel = new WorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel);
+       if (heat_state_filename != "" && vm.count ("Heat.state")) {
+          if (vm.count ("Heat.env_temp"))
+             cout << "Discarding parameter Heat.env_temp\n";
+          if (vm.count ("Heat.scale"))
+             cout << "Discarding parameter Heat.scale\n";
+          if (vm.count ("Heat.border_size"))
+             cout << "Discarding parameter Heat.border_size\n";
+          heatModel = WorldHeat::worldHeatFromFile (heat_state_filename, parallelismLevel);
+       }
+       else
+          heatModel = new WorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel);
        if (heat_log_file_name != "") {
           heatModel->logToStream (heat_log_file_name);
        }
@@ -313,7 +345,6 @@ int main(int argc, char *argv[])
        heatModel = NULL;
        break;
     }
-
 	CasuHandler *ch = new CasuHandler();
 	world->addHandler("Casu", ch);
 
@@ -332,11 +363,22 @@ int main(int argc, char *argv[])
 			cerr << "Parameters of heat model are not valid!\nExiting.\n";
 			return 1;
 		}
+        ViewerWidget::CameraPose cam = viewer.camera;
       if (vm.count ("Camera.pos_x") > 0
           || vm.count ("Camera.pos_y") > 0
           || vm.count ("Camera.altitude") > 0) {
-         viewer.setCameraPosition (-cameraPosX, -cameraPosY, cameraAltitude);
+          cam.pos = QPointF(cameraPosX, cameraPosY);
+          cam.altitude = cameraAltitude;
       }
+      if (vm.count ("Camera.pitch") > 0) {
+          cout << "I: setting the custom pitch " << cameraPitch << "\n";
+          cam.pitch = cameraPitch;
+      }
+      if (vm.count ("Camera.yaw") > 0) {
+          cout << "I: setting the custom yaw " << cameraYaw << "\n";
+          cam.yaw = cameraYaw;
+      }
+      viewer.setCamera(cam.pos, cam.altitude, cam.yaw, cam.pitch);
       if (vm.count ("Viewer.no_help") > 0) {
          viewer.showHelp = false;
       }
