@@ -76,7 +76,10 @@ namespace Enki
 		 * Whether to draw data using a gradient or not.
 		 */
 		bool useGradient;
-
+		/**
+		 *
+		 */
+		double gridScale;
 		Point dataSize;
 		std::vector<std::vector<std::vector<float> > > dataColour;
 	public:
@@ -96,7 +99,7 @@ namespace Enki
 		int dataLayerZ;
 
 	public:
-		AssisiPlayground (ExtendedWorld *world, WorldHeat *worldHeat, double maxVibration, QWidget *parent = 0);
+		AssisiPlayground (ExtendedWorld *world, WorldHeat *worldHeat, double gridScale, double maxVibration, QWidget *parent = 0);
     void addEPuck(World *world, Point pos);
 
 

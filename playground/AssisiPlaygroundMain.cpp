@@ -333,6 +333,7 @@ int main(int argc, char *argv[])
           if (vm.count ("Heat.border_size"))
              cout << "Discarding parameter Heat.border_size\n";
           heatModel = WorldHeat::worldHeatFromFile (heat_state_filename, parallelismLevel, heatMode == 'S');
+          heat_scale = heatModel->gridScale;
        }
        else
           heatModel = new WorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel, heatMode == 'S');
@@ -361,7 +362,7 @@ int main(int argc, char *argv[])
 	if (vm.count ("nogui") == 0) {
 		QApplication app(argc, argv);
 
-		AssisiPlayground viewer (world, heatModel, maxVibration);
+		AssisiPlayground viewer (world, heatModel, heat_scale, maxVibration);
 		if (heatModel != NULL && !heatModel->validParameters (viewer.timerPeriodMs / 1000.)) {
 			cerr << "Parameters of heat model are not valid!\nExiting.\n";
 			return 1;
@@ -388,7 +389,7 @@ int main(int argc, char *argv[])
       if (vm.count ("Viewer.layer") > 0) {
          switch (layer) {
          case 'H':
-            viewer.layerToDraw = AssisiPlayground::HEAT;
+            viewer.layerToDraw = (heatModel != NULL ? AssisiPlayground::HEAT : AssisiPlayground::NONE);
             break;
          case 'V':
             viewer.layerToDraw = AssisiPlayground::VIBRATION;
@@ -403,7 +404,6 @@ int main(int argc, char *argv[])
          }
       }
 		viewer.show ();
-	
 		return app.exec();
 	}
 	else {
