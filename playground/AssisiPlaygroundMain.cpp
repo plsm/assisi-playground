@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     string heat_log_file_name;
     double heat_scale;
     int heat_border_size;
-    char heatMode;
+    char heatMode = 'D';
 
     double maxVibration;
     double parallelismLevel = 1.0;
@@ -324,7 +324,7 @@ int main(int argc, char *argv[])
 
     switch (heatMode) {
     case 'S':
-    case 'F':
+    case 'D':
        if (heat_state_filename != "" && vm.count ("Heat.state")) {
           if (vm.count ("Heat.env_temp"))
              cout << "Discarding parameter Heat.env_temp\n";
@@ -332,10 +332,10 @@ int main(int argc, char *argv[])
              cout << "Discarding parameter Heat.scale\n";
           if (vm.count ("Heat.border_size"))
              cout << "Discarding parameter Heat.border_size\n";
-          heatModel = WorldHeat::worldHeatFromFile (heat_state_filename, parallelismLevel);
+          heatModel = WorldHeat::worldHeatFromFile (heat_state_filename, parallelismLevel, heatMode == 'S');
        }
        else
-          heatModel = new WorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel);
+          heatModel = new WorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel, heatMode == 'S');
        if (heat_log_file_name != "") {
           heatModel->logToStream (heat_log_file_name);
        }
@@ -344,6 +344,9 @@ int main(int argc, char *argv[])
     case 'N':
        heatModel = NULL;
        break;
+    default:
+       cerr << "Unknown heat mode: " << heatMode << '\n';
+       return 2;
     }
 	CasuHandler *ch = new CasuHandler();
 	world->addHandler("Casu", ch);

@@ -11,7 +11,7 @@ const double WorldHeat::THERMAL_DIFFUSIVITY_COPPER = 1.11e-4;
 /*const*/ double WorldHeat::CELL_DISSIPATION = 1e-6;
 
 WorldHeat::
-WorldHeat (const ExtendedWorld *world, double normalHeat, double gridScale, double borderSize, double concurrencyLevel, int logRate):
+WorldHeat (const ExtendedWorld *world, double normalHeat, double gridScale, double borderSize, double concurrencyLevel, bool constantTemperatureFlag, int logRate):
 	AbstractGrid (world, gridScale, borderSize),
 #ifdef WORLDHEAT_SERIAL
 	AbstractGridSimulation (),
@@ -22,6 +22,7 @@ WorldHeat (const ExtendedWorld *world, double normalHeat, double gridScale, doub
 	initFlag (true),
 	normalHeat (normalHeat),
 	logStream (NULL),
+	constantTemperatureFlag (constantTemperatureFlag),
 	logRate (logRate - 1),
 	iterationsToNextLog (logRate),
 	relativeTime (0),
@@ -32,7 +33,7 @@ WorldHeat (const ExtendedWorld *world, double normalHeat, double gridScale, doub
 }
 
 WorldHeat::
-WorldHeat (const Vector &size, const Vector &origin, double normalHeat, double gridScale, double borderSize, double concurrencyLevel, int logRate):
+WorldHeat (const Vector &size, const Vector &origin, double normalHeat, double gridScale, double borderSize, double concurrencyLevel, bool constantTemperatureFlag, int logRate):
 	AbstractGrid (gridScale, borderSize, size, origin),
 #ifdef WORLDHEAT_SERIAL
 	AbstractGridSimulation (),
@@ -43,6 +44,7 @@ WorldHeat (const Vector &size, const Vector &origin, double normalHeat, double g
 	initFlag (false),
 	normalHeat (normalHeat),
 	logStream (NULL),
+	constantTemperatureFlag (constantTemperatureFlag),
 	logRate (logRate - 1),
 	iterationsToNextLog (logRate),
 	relativeTime (0),
@@ -53,7 +55,7 @@ WorldHeat (const Vector &size, const Vector &origin, double normalHeat, double g
 }
 
 WorldHeat *WorldHeat::
-worldHeatFromFile (string filename, double concurrencyLevel, int logRate)
+worldHeatFromFile (string filename, double concurrencyLevel, bool constantTemperatureFlag, int logRate)
 {
 	ifstream ifs (filename.c_str ());
 	Vector size;
@@ -69,7 +71,7 @@ worldHeatFromFile (string filename, double concurrencyLevel, int logRate)
 	ifs >> dummy >> normalHeat;
 	WorldHeat *result = new WorldHeat
 		(size, origin,
-		 normalHeat, gridScale, borderSize, concurrencyLevel, logRate);
+		 normalHeat, gridScale, borderSize, concurrencyLevel, constantTemperatureFlag, logRate);
 	int qty = 0;
 	for (int y = 0; y < result->size.y; y++) {
 		for (int x = 0; x < result->size.x; x++) {
@@ -165,6 +167,9 @@ void WorldHeat::
 computeNextState (double deltaTime)
 {
 	this->relativeTime += deltaTime;
+	if (this->constantTemperatureFlag) {
+		return ;
+	}
 	if (this->logStream != NULL) {
 		if (this->iterationsToNextLog == 0) {
 			dumpState (*this->logStream);

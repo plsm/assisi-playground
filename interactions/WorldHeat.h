@@ -47,6 +47,10 @@ namespace Enki
 		 */
 		std::ofstream *logStream;
 		/**
+		 * Whether the temperature is constant or not.
+		 */
+		bool constantTemperatureFlag;
+		/**
 		 * Rate at which world heat is logged.  This is used with field
 		 * {@code iterationsToNextLog} to produce logs.
 		 *
@@ -91,11 +95,11 @@ namespace Enki
 		 * Whether method initParameters should initialize temperature or not.
 		 */
 		const bool initFlag;
-		WorldHeat (const Vector &size, const Vector &origin, double normalHeat, double gridScale, double borderSize, double concurrencyLevel, int logRate = 1);
+		WorldHeat (const Vector &size, const Vector &origin, double normalHeat, double gridScale, double borderSize, double concurrencyLevel, bool constantTemperatureFlag = false, int logRate = 1);
 		
 	public:
-		WorldHeat (const ExtendedWorld *world, double normalHeat, double gridScale, double borderSize, double concurrencyLevel, int logRate = 1);
-		static WorldHeat *worldHeatFromFile (std::string filename, double concurrencyLevel, int logRate = 1);
+		WorldHeat (const ExtendedWorld *world, double normalHeat, double gridScale, double borderSize, double concurrencyLevel, bool constantTemperatureFlag = false, int logRate = 1);
+		static WorldHeat *worldHeatFromFile (std::string filename, double concurrencyLevel, bool constantTemperatureFlag = false, int logRate = 1);
 		virtual ~WorldHeat ();
 		/**
 		 * Checks if this instance of the heat model combined with the given

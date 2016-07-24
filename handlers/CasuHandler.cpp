@@ -193,9 +193,8 @@ namespace Enki
             {
                 temperatures.add_temp(h->getMeasuredHeat());
             }
-            temperatures.add_temp(-512); // for top
-            temperatures.add_temp(-512); // for PCB
-            temperatures.add_temp(-512); // for wax
+            // temperatures.add_temp (-512); // for PCB
+            // temperatures.add_temp (28);   // for wax
             temperatures.SerializeToString(&data);
             zmq::send_multipart(socket, ca.first, "Temp", "Temperatures", data);
 
