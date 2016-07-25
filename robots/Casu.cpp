@@ -172,6 +172,7 @@ namespace Enki
             PELTIER_THERMAL_RESPONSE, ambientTemperature,
             PELTIER_RADIUS, 16);
         this->addPhysicInteraction(this->peltier);
+        world->worldHeat->drawCircle ((double) 0, this->pos, PELTIER_RADIUS + 1);
         world->worldHeat->drawCircle (WorldHeat::THERMAL_DIFFUSIVITY_COPPER, this->pos, PELTIER_RADIUS);
 
         // Add vibration actuator

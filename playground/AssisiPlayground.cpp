@@ -18,6 +18,7 @@ namespace Enki
 		layerToDraw (NONE),
 		transparency (0.5),
 		useGradient (false),
+		gridScale (gridScale),
 		dataSize (ceil (2 * world->r / gridScale), ceil (2 * world->r / gridScale)),
 		dataColour (dataSize.x, std::vector<std::vector<float> > (dataSize.y, std::vector<float> (3, 0) ) ),
 		showHelp (true),
@@ -421,9 +422,14 @@ void AssisiPlayground::keyPressEvent (QKeyEvent *event)
 		updateGL ();
 		break;
 	case Qt::Key_D:
-		qDebug () << "Switching heat diffusivity";
-		this->layerToDraw = (this->layerToDraw == DIFFUSIVITY ? NONE : DIFFUSIVITY);
-		updateGL ();
+		if (this->worldHeat != NULL) {
+			qDebug () << "Switching heat diffusivity";
+			this->layerToDraw = (this->layerToDraw == DIFFUSIVITY ? NONE : DIFFUSIVITY);
+			updateGL ();
+		}
+		else {
+			qDebug () << "There is no heat diffusivity to show!";
+		}
 		break;
 	case Qt::Key_A:
 		qDebug () << "Switching air flow";
