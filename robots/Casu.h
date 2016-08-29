@@ -76,7 +76,7 @@ namespace Enki
 
     public:
         //! Create a CASU
-        Casu (Vector pos, double yaw, ExtendedWorld* world, double ambientTemperature, int bridgeMask = 0);
+        Casu (Vector pos, double yaw, ExtendedWorld* world, double ambientTemperature);
 
         //! Destructor
         ~Casu();
@@ -114,7 +114,6 @@ namespace Enki
 
     private:
         World* world_;
-        void createBridge (ExtendedWorld* world, Vector direction);
     };
 }
 

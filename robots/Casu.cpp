@@ -70,7 +70,7 @@ namespace Enki
     /*const*/ double Casu::PELTIER_THERMAL_RESPONSE = 0.3;
     const double Casu::PELTIER_RADIUS = 1.6;
 
-    Casu::Casu(Vector pos, double yaw, ExtendedWorld* world, double ambientTemperature, int bridgeMask) :
+    Casu::Casu(Vector pos, double yaw, ExtendedWorld* world, double ambientTemperature) :
         world_(world),
         range_sensors(6),
         vibration_sensors (Casu::NUMBER_VIBRATION_SENSORS),
@@ -150,21 +150,6 @@ namespace Enki
         // Add diagnostic led
         top_led = new DiagnosticLed(this);
 
-        // Add bridges
-        Matrix22 rot (yaw);
-        if (bridgeMask & NORTH) {
-           createBridge (world, rot * Point (0, 1));
-        }
-        if (bridgeMask & SOUTH) {
-           createBridge (world, rot * Point (0, -1));
-        }
-        if (bridgeMask & EAST) {
-           createBridge (world, rot * Point (1, 0));
-        }
-        if (bridgeMask & WEST) {
-           createBridge (world, rot * Point (-1, 0));
-        }
-
         // Add peltier actuator
         // TODO: make peltier parameters CASU constants
         peltier = new HeatActuatorMesh
@@ -236,31 +221,5 @@ namespace Enki
     }
 
 // -----------------------------------------------------------------------------
-
-void Casu::
-createBridge (ExtendedWorld* world, Vector direction)
-{
-	std::vector<Point> polygon;
-	polygon.reserve (4);
-	Point p1, p2;
-	p2 = direction.perp ();
-	p2 *= Casu::BRIDGE_WIDTH / 2;
-	p2 += this->pos;
-	polygon.push_back (p2);
-	p1 = direction;
-	p1 *= Casu::BRIDGE_LENGTH;
-	p1 += p2;
-	polygon.push_back (p1);
-	p1 = direction;
-	p1 *= Casu::BRIDGE_LENGTH;
-	p2 = direction.perp ();
-	p2 *= -Casu::BRIDGE_WIDTH / 2;
-	p1 += p2;
-	p1 += this->pos;
-	polygon.push_back (p1);
-	p2 += this->pos;
-	polygon.push_back (p2);
-	world->worldHeat->drawPolygon (Casu::THERMAL_DIFFUSIVITY_COPPER_BRIDGE, polygon);
-}
 
 }
