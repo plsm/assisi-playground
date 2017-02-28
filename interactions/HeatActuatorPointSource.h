@@ -25,6 +25,10 @@ namespace Enki
 		 */
 		double heat;
 		/**
+		 * The maximum temperature change that this heat point source will cause.
+		 */
+		double slope;
+		/**
 		 * How much does this heat actuator takes to heat the environment.
 		 */
 		double thermalResponseTime;
@@ -42,9 +46,19 @@ namespace Enki
 		double getRealHeat (double dt, WorldHeat *worldHeat) const
 		{
 			double factor = std::min (1.0, this->thermalResponseTime * dt);
-			return
-				factor * this->heat
-				+ (1 - factor) * worldHeat->getHeatAt (this->absolutePosition);
+			double heat_now = worldHeat->getHeatAt (this->absolutePosition);
+			double heat_target = factor * this->heat
+				+ (1 - factor) * heat_now;
+			double heat_diff = fabs (heat_now - heat_target);
+			if (heat_diff > dt * this->slope) {
+				if (heat_now > heat_target)
+					heat_target = heat_now - dt * this->slope;
+				else {
+					heat_target = heat_now + dt * this->slope;
+				}
+			}
+			return heat_target;
+				
 		}
 	public:
 		HeatActuatorPointSource (
@@ -53,7 +67,10 @@ namespace Enki
 			double thermalResponseTime,
 			double ambientTemperature);
 		void setHeat (double value);
-        double getHeat(void) { return this->heat; }
+		double getHeat(void) { return this->heat; }
+		void setSlope (double value) { this->slope = slope; }
+		double getSlope (void) { return this->slope; }
+
 		bool isSwitchedOn () const
 		{
 			return this->switchedOn;

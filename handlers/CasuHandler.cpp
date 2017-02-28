@@ -97,6 +97,7 @@ namespace Enki
                 assert(temp_msg.ParseFromString(data));
                 casus_[name]->peltier->setHeat(temp_msg.temp());
                 casus_[name]->peltier->setSwitchedOn(true);
+                casus_[name]->peltier->setSlope(temp_msg.slope());
                 count++;
             }
             else if (command == "Off")
