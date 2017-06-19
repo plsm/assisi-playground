@@ -19,6 +19,7 @@
 #include "interactions/VibrationSensor.h"
 #include "interactions/HeatSensor.h"
 #include "interactions/AirPump.h"
+#include "interactions/HeatActuatorSlope.h"
 
 namespace Enki
 {
@@ -61,11 +62,12 @@ namespace Enki
 
        /* peltier's parameters and configuration */
        static const Vector PELTIER_POSITION;
-       static /*const*/ double PELTIER_THERMAL_RESPONSE;
        static const double PELTIER_RADIUS;
+       static /*const*/ double PELTIER_SLOPE;
        static const double BRIDGE_LENGTH;
        static const double BRIDGE_WIDTH;
        static const double THERMAL_DIFFUSIVITY_COPPER_BRIDGE;
+       static /*const*/ double THERMAL_DIFFUSIVITY_FAKE_RING;
 
        /* air pump's parameters and configuration */
        static const int AIR_PUMP_QUANTITY;
@@ -99,7 +101,7 @@ namespace Enki
         DiagnosticLed* top_led;
 
         //! Peltier heater
-        HeatActuatorMesh *peltier;
+        HeatActuatorSlope *peltier;
 
         //! Vibration actuator
         WaveVibrationSource *vibration_source;

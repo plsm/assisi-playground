@@ -116,6 +116,37 @@ PointMesh *PointMesh::makeLineMesh (double x, double y, int numberPoints)
 	return result;
 }
 
+PointMesh *PointMesh::makeCircumferenceGrid (double radius, double gridSize)
+{
+    PointMesh *result = new PointMesh (0);
+    int x = radius / gridSize;
+    int y = 0;
+    int err = 0;
+    while (x >= y) {
+        double dx = gridSize * x;
+        double dy = gridSize * y;
+        result->points.push_back (Point (dx, dy));
+        result->points.push_back (Point (-dy, dx));
+        result->points.push_back (Point (-dx, dy));
+        result->points.push_back (Point (-dy, -dx));
+        if (x != y && y != 0) {
+            result->points.push_back (Point (dy, dx));
+            result->points.push_back (Point (dx, -dy));
+            result->points.push_back (Point (dy, -dx));
+            result->points.push_back (Point (-dx, -dy));
+        }
+        y += 1;
+        if (err <= 0) {
+            err += 2*y + 1;
+        }
+        if (err > 0) {
+            x -= 1;
+            err -= 2*x + 1;
+        }
+    }
+    return result;
+}
+
 void PointMesh::print (std::ostream &os) const
 {
 	os << this->points [0];

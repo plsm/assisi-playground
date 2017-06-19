@@ -63,6 +63,7 @@ namespace Enki
 		 * the world heat and reset this field to value {@code logRate}.
 		 */
 		int iterationsToNextLog;
+      protected:
 		/**
 		 * How much time has passed since the simulation started.  Unit is
 		 * simulation time.

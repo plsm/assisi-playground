@@ -19,9 +19,7 @@ namespace Enki
 	 * Represents a mesh of points.
 	 */
 	class PointMesh {
-	public:
 		std::vector<Point> points;
-	private:
 		PointMesh ();
 		PointMesh (int size);
 	public:
@@ -55,6 +53,15 @@ namespace Enki
 		 * width and height.
 		 */
 		static PointMesh *makeLineMesh (double x, double y, int numberPoints);
+      /**
+       * Create a mesh of points arranged in a circumference embedded in a
+       * rectangular grid. Each coordinate of a point is a multiple of delta,
+       * where delta is the length of the square side.
+       *
+       * Uses a version of the Bresenham (1977) algorithm for drawing the
+       * circumference.
+       */
+      static PointMesh *makeCircumferenceGrid (double radius, double delta);
 		/**
 		 * Return the point at position {@code i}.
 		 */

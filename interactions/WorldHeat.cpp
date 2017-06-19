@@ -121,6 +121,7 @@ setHeatAt (const Vector &pos, double value)
 {
 	int x, y;
 	toIndex (pos, x, y);
+  // cout << "   heat [" << x << "][" << y << "] = " << value << '\n';
 	this->grid [this->adtIndex][x][y] = value;
 }
 

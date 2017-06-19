@@ -111,6 +111,10 @@ namespace Enki
 			this->activeEdgeTable = NULL_EDGE;
 		}
 	public:
+		T getProp (int x, int y)
+		{
+			return this->prop [x][y];
+		}
 		/**
 		 * Fill the grid with the given value.
 		 *

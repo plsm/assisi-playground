@@ -74,6 +74,7 @@ add_definitions(${QT_DEFINITIONS})
 set(GCC_GRAPHITE_COMPILE_FLAGS, "")
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${GCC_GRAPHITE_COMPILE_FLAGS}" )
 
+set(CXX_FLAGS "-g")
 
 # The ASSISI playground
 set(playground_SOURCES AssisiPlaygroundMain.cpp
@@ -95,6 +96,7 @@ set(playground_SOURCES AssisiPlaygroundMain.cpp
                        ../interactions/VibrationSource.cpp
                        ../interactions/HeatActuatorMesh.cpp
                        ../interactions/HeatActuatorPointSource.cpp
+                       ../interactions/HeatActuatorSlope.cpp
                        ../interactions/WaveVibrationSource.cpp
                        ../interactions/VibrationSensor.cpp
                        ../interactions/ObjectSensor.cpp
@@ -120,8 +122,8 @@ include_directories (${OPENGL_INCLUDE_DIR})
 add_executable(assisi_playground ${playground_SOURCES} ${playground_QT_HEADERS_MOC} ${playground_RCC_SOURCES})
 
 target_link_libraries(assisi_playground ${enki_LIBRARIES}
-                                        ${QT_LIBRARIES} 
-                                        ${OPENGL_LIBRARIES} 
+                                        ${QT_LIBRARIES}
+                                        ${OPENGL_LIBRARIES}
                                         ${ZeroMQ_LIBRARY}
                                         ${PROTOBUF_LIBRARY}
                                         ${Boost_LIBRARIES}
@@ -129,3 +131,44 @@ target_link_libraries(assisi_playground ${enki_LIBRARIES}
 
 # Copy config files to binary dir
 configure_file(Playground.cfg Playground.cfg COPYONLY)
+
+
+# heat calibration program
+set(calibrate_heat_SOURCES HeatCalibration.cpp
+                       WorldExt.cpp
+                       ../robots/Casu.cpp
+                       ../robots/Bee.cpp
+                       ../handlers/EPuckHandler.cpp
+                       ../handlers/CasuHandler.cpp
+                       ../handlers/PhysicalObjectHandler.cpp
+                       ../handlers/BeeHandler.cpp
+                       ../interactions/LightConstants.cpp
+                       ../interactions/LightSource.cpp
+                       ../interactions/LightSourceFromAbove.cpp
+                       ../interactions/LightSensor.cpp
+                       ../interactions/WorldHeat.cpp
+                       ../interactions/HeatSensor.cpp
+                       ../interactions/AbstractGrid.cpp
+                       ../interactions/VibrationSource.cpp
+                       ../interactions/HeatActuatorSlope.cpp
+                       ../interactions/WaveVibrationSource.cpp
+                       ../interactions/VibrationSensor.cpp
+                       ../interactions/ObjectSensor.cpp
+                       ../interactions/AirPump.cpp
+                       ../interactions/AirFlowSensor.cpp
+                       ../interactions/LogWorldHeat.cpp
+                       ../extensions/Component.cpp
+                       ../extensions/ExtendedRobot.cpp
+                       ../extensions/ExtendedWorld.cpp
+                       ../extensions/PointMesh.cpp
+                       ${ProtoSources})
+
+add_executable(calibrate_heat ${calibrate_heat_SOURCES})
+
+target_link_libraries(calibrate_heat ${enki_LIBRARIES}
+                                        ${QT_LIBRARIES}
+                                        ${OPENGL_LIBRARIES}
+                                        ${ZeroMQ_LIBRARY}
+                                        ${PROTOBUF_LIBRARY}
+                                        ${Boost_LIBRARIES}
+                                        ${CMAKE_THREAD_LIBS_INIT})

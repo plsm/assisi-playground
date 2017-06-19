@@ -13,6 +13,7 @@
 
 #include "extensions/ExtendedWorld.h"
 #include "interactions/WorldHeat.h"
+#include "interactions/LogWorldHeat.h"
 
 #include "handlers/PhysicalObjectHandler.h"
 #include "handlers/EPuckHandler.h"
@@ -38,7 +39,7 @@ namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
 namespace Enki {
-	double env_temp;
+    double env_temp;
 }
 
 static WorldExt *world;
@@ -55,16 +56,6 @@ static WorldHeat *heatModel;
  */
 static double timerPeriod = 0.01;
 
-/**
- * Camera view parameters.
- */
-static double cameraPosX = 0;
-static double cameraPosY = 0;
-static double cameraAltitude = 1;
-static double cameraYaw = 0;
-static double cameraPitch = M_PI/2;
-
-static char layer = 'N';
 
 /**
  * Delta time used to update world state.  It is equal to the value used by
@@ -86,14 +77,17 @@ static sem_t block;
 
 static bool go = true;
 
-int runTimer ();
 
-void runLoop ();
+
+static LogWorldHeat *logableHeatModel;
+extern double test_diffusivity;
+
+void closeLogFiles (int signum);
 
 int main(int argc, char *argv[])
 {
-	//	QApplication app(argc, argv);
-	
+    //  QApplication app(argc, argv);
+
     /** Parse command line options **/
     
     po::options_description desc("Recognized options");
@@ -101,13 +95,15 @@ int main(int argc, char *argv[])
     // Variables to store the options
     int r;
     string config_file_name("Playground.cfg");
-	// Create the world and the viewer
+    // Create the world and the viewer
     string pub_address("tcp://*:5555"); 
     string sub_address("tcp://*:5556");
-	 string heat_state_filename;
+    // heat model parameters;
+    string heat_state_filename;
     string heat_log_file_name;
     double heat_scale;
     int heat_border_size;
+    char heatMode = 'D';
 
     double maxVibration;
     double parallelismLevel = 1.0;
@@ -115,6 +111,10 @@ int main(int argc, char *argv[])
     // Bee physical parameters
     double bee_body_length, bee_body_width, bee_body_height,
         bee_body_mass, bee_max_speed;
+
+
+    string list_waiting_times;
+    string list_target_temperatures;
 
     fs::path default_config = fs::path("");
     // MAC workaround for Thomas
@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
 #elif defined __linux__
     default_config = fs::read_symlink(fs::path("/proc/self/exe"));
 #endif
-
+    char crap;
     default_config.remove_filename() /= "Playground.cfg";
 
     desc.add_options
@@ -161,7 +161,7 @@ int main(int argc, char *argv[])
             )
         (
             "Heat.log_file",
-            po::value<string> (&heat_log_file_name)->default_value (""),
+            po::value<string> (&heat_log_file_name)->default_value ("heat-log.csv"),
             "heat log file name"
             )
         (
@@ -169,6 +169,26 @@ int main(int argc, char *argv[])
             po::value<double> (&WorldHeat::CELL_DISSIPATION),
             "heat lost by cells directly to outside world"
             )
+        (
+            "Heat.mode",
+            po::value<char> (&heatMode),
+            "mode the heat model should run. Valid options are: 'N' no heat model; 'S' static heat model; 'D' dynamic heat model (default)"
+            )
+       // (
+       //  "Heat.casu_outer_circumference_diffusivity",
+       //  po::value<double> (&test_diffusivity),
+       //  "Heat diffusivity of circumference around CASU ring"
+       //  )
+        // (
+        //  "Heat.thermal_diffusivity_air",
+        //  po::value<double> (&WorldHeat::THERMAL_DIFFUSIVITY_AIR),
+        //  "Heat diffusivity of normal grid cells"
+        // )
+        // (
+        //  "Heat.thermal_diffusivity_copper",
+        //  po::value<double> (&WorldHeat::THERMAL_DIFFUSIVITY_COPPER),
+        //  "Heat diffusivity of grid cells where a CASU is located"
+        // )
         (
             "AirFlow.pump_range",
             po::value<double> (&Casu::AIR_PUMP_RANGE),
@@ -195,6 +215,11 @@ int main(int argc, char *argv[])
             "vibration frequency noise"
             )
         (
+            "Viewer.layer",
+            po::value<char> (&crap),
+            "which data layer should be displayed by default: N none, H heat, V vibration, A airflow"
+            )
+        (
             "Viewer.max_vibration",
             po::value<double> (&maxVibration),
             "maximum displayed vibration intensity"
@@ -202,11 +227,6 @@ int main(int argc, char *argv[])
         (
             "Viewer.no_help",
             "do not show help text"
-            )
-        (
-            "Viewer.layer",
-            po::value<char> (&layer),
-            "which data layer should be displayed by default: N none, H heat, V vibration, A airflow"
             )
         (
             "Simulation.timer_period",
@@ -244,31 +264,6 @@ int main(int argc, char *argv[])
             "Maximum bee motion velocity"
             )
         (
-            "Camera.pos_x",
-            po::value<double> (&cameraPosX),
-            "camera x position"
-            )
-       (
-           "Camera.pos_y",
-           po::value<double> (&cameraPosY),
-           "camera y position"
-           )
-        (
-           "Camera.altitude",
-           po::value<double> (&cameraAltitude),
-           "camera altitude"
-            )
-        (
-           "Camera.yaw",
-           po::value<double> (&cameraYaw),
-           "camera yaw"
-            )
-        (
-           "Camera.pitch",
-           po::value<double> (&cameraPitch),
-           "camera pitch"
-            )
-        (
              "Skew.rate",
              po::value<unsigned int> (&skewMonitorRate),
              "Rate at which we check skewness between real time and simulated time"
@@ -278,6 +273,26 @@ int main(int argc, char *argv[])
              po::value<double> (&skewReportThreshold),
              "Threshold to print a message because of skewness between real time and simulated time"
             )
+        (
+         "HeatCalibration.target_temperatures",
+         po::value<string> (&list_target_temperatures),
+         "a list of temperatures. The CASU is going to heat to each one the values and then wait the corresponding time as specified in parameter waiting_times before going to the next temperature value."
+         )
+        (
+         "HeatCalibration.waiting_times",
+         po::value<string> (&list_waiting_times),
+         "a list of absolute times where the CASU is going to change its temperature set point."
+         )
+       (
+        "Casu.peltier_slope",
+        po::value<double> (&Casu::PELTIER_SLOPE),
+        "CASU peltier slop"
+        )
+        (
+         "Casu.thermal_diffusivity_fake_ring",
+         po::value<double> (&Casu::THERMAL_DIFFUSIVITY_FAKE_RING),
+         "thermal diffusivity of fake ring around the CASUs to simulate low diffusion between cells in the heat model occupied by a CASU and other cells"
+         )
         ;
 
     po::variables_map vm;
@@ -287,7 +302,7 @@ int main(int argc, char *argv[])
     ifstream config_file(config_file_name.c_str(), std::ifstream::in);
     po::store(po::parse_config_file(config_file, desc), vm);
     config_file.close();
-	// not clear what the consequences of >1 notify call are, but no issues noticed
+    // not clear what the consequences of >1 notify call are, but no issues noticed
     po::notify(vm);
 
     if (vm.count("help"))
@@ -295,7 +310,6 @@ int main(int argc, char *argv[])
         cout << desc << endl;
         return 1;
     }
-
     //QImage texture("playground/world.png");
     QImage texture(QString(":/textures/ground_grayscale.png"));
     texture = QGLWidget::convertToGLFormat(texture);    
@@ -310,196 +324,114 @@ int main(int argc, char *argv[])
         skewMonitorRate,
         skewReportThreshold);
 
-    if (heat_state_filename != "" && vm.count ("Heat.state")) {
-       if (vm.count ("Heat.env_temp"))
-          cout << "Discarding parameter Heat.env_temp\n";
-       if (vm.count ("Heat.scale"))
-          cout << "Discarding parameter Heat.scale\n";
-       if (vm.count ("Heat.border_size"))
-          cout << "Discarding parameter Heat.border_size\n";
-       heatModel = WorldHeat::worldHeatFromFile (heat_state_filename, parallelismLevel);
-    }
-    else
-       heatModel = new WorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel);
-	if (heat_log_file_name != "") {
-		heatModel->logToStream (heat_log_file_name);
-	}
-	world->addPhysicSimulation(heatModel);
-	CasuHandler *ch = new CasuHandler();
-	world->addHandler("Casu", ch);
+    cout << "Creating heat model with logging capabilities\n";
+    logableHeatModel = new LogWorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel, heatMode == 'S');
+    logableHeatModel->addRectangle (Point (0, 0), Point (4 * Casu::PELTIER_RADIUS, 0));
+    logableHeatModel->setLogFileName (heat_log_file_name);
+    logableHeatModel->setHeader (LogWorldHeat::WORLD_X_COORDINATE);
+    logableHeatModel->openLogFile ();
 
-	PhysicalObjectHandler *ph = new PhysicalObjectHandler();
-	world->addHandler("Physical", ph);
+    struct sigaction saFinish;
+    saFinish.sa_handler = closeLogFiles;
+    saFinish.sa_flags = 0;
+    sigaction (SIGHUP, &saFinish, 0);
+    sigaction (SIGQUIT, &saFinish, 0);
+    sigaction (SIGINT, &saFinish, 0);
+    sigaction (SIGTERM, &saFinish, 0);
 
-	BeeHandler *bh = new BeeHandler(bee_body_length,bee_body_width, bee_body_height,
+    heatModel = logableHeatModel;
+    world->addPhysicSimulation (heatModel);
+
+    cout << "Adding handlers\n";
+    CasuHandler *ch = new CasuHandler();
+    world->addHandler("Casu", ch);
+
+    PhysicalObjectHandler *ph = new PhysicalObjectHandler();
+    world->addHandler("Physical", ph);
+
+    BeeHandler *bh = new BeeHandler(bee_body_length,bee_body_width, bee_body_height,
                                     bee_body_mass, bee_max_speed);
-	world->addHandler("Bee", bh);
+    world->addHandler("Bee", bh);
 
-	if (vm.count ("nogui") == 0) {
-		QApplication app(argc, argv);
+    vector<double> target_temperatures;
+    istringstream isltt (list_target_temperatures);
+    while (true) {
+        double n;
+        isltt >> n;
+        if (!isltt)
+            break;
+        target_temperatures.push_back (n);
+    }
+    cout << "Built target_temperatures vector from \"" << list_target_temperatures << "\" => [";
+    for (int i = 0; i < target_temperatures.size (); i++) {
+        if (i > 0) cout << ',';
+        cout << " " << target_temperatures [i];
+    }
+    cout << " ]\n";
+    vector<int> waiting_times;
+    istringstream islwt (list_waiting_times);
+    while (true) {
+        int n;
+        islwt >> n;
+        if (!islwt)
+            break;
+        waiting_times.push_back (n);
+    }
+    cout << "Built waiting_times vector from \"" << list_waiting_times << "\" => [";
+    for (int i = 0; i < waiting_times.size (); i++) {
+        if (i > 0) cout << ',';
+        cout << " " << waiting_times [i];
+    }
+    cout << " ]\n";
+    Casu *casu = new Casu (Point (0, 0), 0.0, world, env_temp);
+    world->addObject (casu);
 
-		AssisiPlayground viewer (world, heatModel, maxVibration);
-		if (!heatModel->validParameters (viewer.timerPeriodMs / 1000.)) {
-			cerr << "Parameters of heat model are not valid!\nExiting.\n";
-			return 1;
-		}
-        ViewerWidget::CameraPose cam = viewer.getCamera ();
-      if (vm.count ("Camera.pos_x") > 0
-          || vm.count ("Camera.pos_y") > 0
-          || vm.count ("Camera.altitude") > 0) {
-          cam.pos = QPointF(cameraPosX, cameraPosY);
-          cam.altitude = cameraAltitude;
-      }
-      if (vm.count ("Camera.pitch") > 0) {
-          cout << "I: setting the custom pitch " << cameraPitch << "\n";
-          cam.pitch = cameraPitch;
-      }
-      if (vm.count ("Camera.yaw") > 0) {
-          cout << "I: setting the custom yaw " << cameraYaw << "\n";
-          cam.yaw = cameraYaw;
-      }
-      viewer.setCamera(cam.pos, cam.altitude, cam.yaw, cam.pitch);
-      if (vm.count ("Viewer.no_help") > 0) {
-         viewer.showHelp = false;
-      }
-      if (vm.count ("Viewer.layer") > 0) {
-         switch (layer) {
-         case 'H':
-            viewer.layerToDraw = AssisiPlayground::HEAT;
-            break;
-         case 'V':
-            viewer.layerToDraw = AssisiPlayground::VIBRATION;
-            break;
-         case 'A':
-            viewer.layerToDraw = AssisiPlayground::AIR_FLOW;
-            break;
-         case 'N':
-         default:
-            viewer.layerToDraw = AssisiPlayground::NONE;
-            break;
-         }
-      }
-		viewer.show ();
-
-		return app.exec();
-	}
-	else {
-		if (!heatModel->validParameters (DELTA_TIME)) {
-			cerr << "Parameters of heat model are not valid!\nExiting.\n";
-			return 1;
-		}
-		int ret;
-		if (timerPeriod == 0) {
-			runLoop ();
-			ret = 0;
-		}
-		else {
-			ret = runTimer ();
-		}
-		/* clean up */
-		delete world;
-		delete heatModel;
-		cout << "Simulator finished CORRECTLY!!!\n";
-		return ret;
-	}
+    {
+       ofstream ofs ("heat-properties.csv", ofstream::out | ofstream::trunc);
+       for (int y = 0; y < logableHeatModel->size.y; y++) {
+          for (int x = 0; x < logableHeatModel->size.x; x++) {
+             ofs << ' ' << logableHeatModel->getProp (x, y);
+          }
+          ofs << '\n';
+       }
+       ofs.close ();
+    }
+    cout << "Save heat model properties\n";
+    for (unsigned int i = 0; i < waiting_times.size (); i++) {
+        double elapsed_time = 0;
+        if (target_temperatures [i] > 0) {
+            casu->peltier->setHeat (target_temperatures [i]);
+            casu->peltier->setSwitchedOn (true);
+            cout << "Set peltier temperature to " << target_temperatures [i] << '\n';
+        }
+        else {
+            casu->peltier->setSwitchedOn (false);
+            cout << "Turned off the peltier\n";
+        }
+        do {
+            world->step (DELTA_TIME, PHYSICS_OVERSAMPLING);
+            elapsed_time += DELTA_TIME;
+        } while (elapsed_time < waiting_times [i]);
+        ostringstream filename;
+        filename << "heat-state_#" << (i + 1) << "_" << target_temperatures [i] << ".txt";
+        logableHeatModel->saveState (filename.str ());
+    }
+    delete logableHeatModel;
+    // delete world; causes a crash
+    return 0;
 }
 
 /**
- * Function assigned to SIGQUIT, SIGINT and SIGTERM signals.
+ * Signal handler to close logged files.
  */
-void finishLoop (int dummy)
+void closeLogFiles (int signum)
 {
-	cout << "Received signal " << dummy << "\n";
-	go = false;
+    cout << "Received signal " << signum << "\n";
+    logableHeatModel->closeLogFile ();
+    exit (0);
 }
 
-void runLoop ()
-{
-	/* set up the action for control-C */
-	struct sigaction saFinish;
-	saFinish.sa_handler = finishLoop;
-	saFinish.sa_flags = 0;
-	sigaction (SIGQUIT, &saFinish, 0);
-	sigaction (SIGINT, &saFinish, 0);
-	sigaction (SIGTERM, &saFinish, 0);
-	/* main loop */
-	while (go) {
-		world->step (DELTA_TIME, PHYSICS_OVERSAMPLING);
-	}
-	return ;
-}
 
-/**
- * Function assigned to SIGALRM signal.
- */
-void progress (int dummy)
-{
-	world->step (DELTA_TIME, PHYSICS_OVERSAMPLING);
-}
-
-/**
- * Function assigned to SIGQUIT, SIGINT and SIGTERM signals.
- */
-void finishTimer (int dummy)
-{
-	if (sem_post (&block) == -1) {
-	 	perror ("Error unlocking blocking semaphore");
-	}
-}
-
-int runTimer ()
-{
-	/* set up the action for control-C */
-	struct sigaction saFinish;
-	saFinish.sa_handler = finishTimer;
-	saFinish.sa_flags = 0;
-	sigaction (SIGHUP, &saFinish, 0);
-	sigaction (SIGQUIT, &saFinish, 0);
-	sigaction (SIGINT, &saFinish, 0);
-	sigaction (SIGTERM, &saFinish, 0);
-
-	/* set up the action for alarm */
-	struct sigaction saProgresso;
-	saProgresso.sa_handler = progress;
-	saProgresso.sa_flags = 0;
-	sigaction (SIGALRM, &saProgresso, 0);
-	/* set up timer */
-	struct itimerval value;
-	timerPeriod = fabs (timerPeriod);
-	value.it_interval.tv_sec = (time_t) timerPeriod;
-	long usec = timerPeriod * 1000000;
-	while (usec > 999999) {
-		usec -= 1000000;
-	}
-	value.it_interval.tv_usec = usec;
-	value.it_value.tv_sec = 1;
-	value.it_value.tv_usec = 0;
-	setitimer (ITIMER_REAL, &value, NULL);
-	/* initialise blocking a semaphore */
-	int ret;
-	do {
-		ret = sem_init (&block, 0, 0);
-		if (ret != 0) {
-			printf ("errno=%d\n", errno);
-			perror ("initialisation of playground semaphore");
-			return 1;
-		}
-	} while (ret == -1 && errno == EAGAIN);
-	/* block on a semaphore */
-	do {
-		do {
-			ret = sem_wait (&block);
-		} while (ret == -1 && errno == EINTR);
-		if (ret != 0) {
-			printf ("errno=%d\n", errno);
-			perror ("playground blocking semaphore");
-		}
-	} while (ret == -1 && errno == EAGAIN);
-	/* disable timer */
-	value.it_interval.tv_sec = 0;
-	value.it_interval.tv_usec = 0;
-	value.it_value.tv_sec = 0;
-	value.it_value.tv_usec = 0;
-	setitimer (ITIMER_REAL, &value, NULL);
-	return 0;
-}
+// Local Variables: 
+// indent-tabs-mode: nil
+// End: 

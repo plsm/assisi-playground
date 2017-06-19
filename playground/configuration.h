@@ -1,48 +1,38 @@
 #ifndef __CONFIGURATION__
 #define __CONFIGURATION__
 
-#include "WorldExt.h"
+#include <boost/program_options.hpp>
+
+#include "playground/WorldExt.h"
 
 namespace Enki {
-	typedef enum {
-		MODE_GUI,
-		MODE_NO_VIEWER
-	} Mode;
+    typedef enum {
+        MODE_GUI,
+        MODE_NO_VIEWER
+    } Mode;
 
-	/**
-	 * Environmental temperature.  This value is used to initialise the heat
-	 * model.  The heat model is composed of a rectangular grid.  Heat flows from
-	 * hotter grid cells to colder grid cells.  Cells in the border exchange heat
-	 * with the outside world whose temperature is given by this variable.
-	 */
-	extern double env_temp;
+    extern double env_temp;
 
-	/**
-	 * Arena radius in centimetres.
-	 */
-	extern int radius;
+    extern Mode mode;
 
-	extern double heat_scale;
+    extern double timerPeriod;
 
-	extern int heat_border_size;
+    /**
+     * Return a description of the standard options that can be passed in the
+     * command line or be presented in a configuration file.
+     */
+    boost::program_options::options_description standardOptions ();
 
-	extern double maxVibration;
+    /**
+     * Process the configuration options that can be passed in the command line
+     * or be in the 'Playground.cfg' file.
+     */
+    boost::program_options::variables_map processConfiguration (int argc, char *argv[], const boost::program_options::options_description &desc);
 
-	extern Mode mode;
-
-	extern double timerPeriodSec;
-
-	/**
-	 * Process configuration options that can be passed in the command line
-	 * or be in the 'Playground.cfg' file.
-	 */
-	void processConfiguration (int argc, char *argv[]);
-
-	/**
-	 * Create a world for the corresponding mode.
-	 */
-	WorldExt *createWorld ();
-
+    /**
+     * Create a world for the corresponding mode.
+     */
+    WorldExt *createWorld (const boost::program_options::variables_map &vm);
 }
 
 #endif // __CONFIGURATION__
