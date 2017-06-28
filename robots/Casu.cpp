@@ -70,7 +70,8 @@ namespace Enki
     /*const*/ double Casu::PELTIER_SLOPE = 0.25;
     const double Casu::PELTIER_RADIUS = 1.6;
 
-    /*const*/ double Casu::THERMAL_DIFFUSIVITY_FAKE_RING = WorldHeat::THERMAL_DIFFUSIVITY_AIR;
+    /*const*/ double Casu::THERMAL_DIFFUSIVITY_FAKE_RING = 1e-6;
+    /*const*/ double Casu::THERMAL_DIFFUSIVITY_REAL_CIRCLE = (0.5 + 0.125 + 0.0625) * WorldHeat::THERMAL_DIFFUSIVITY_COPPER;
     
     Casu::Casu(Vector pos, double yaw, ExtendedWorld* world, double ambientTemperature, int bridgeMask) :
         world_(world),
@@ -169,17 +170,17 @@ namespace Enki
 
         // Add peltier actuator
         // TODO: make peltier parameters CASU constants
-        PointMesh *mesh = PointMesh::makeCircumferenceGrid (PELTIER_RADIUS, world->worldHeat->gridScale);
-        // std::cout << "HeatActuatorSlope mesh = ";
-        // mesh->print (std::cout);
-        // std::cout << '\n';
+        PointMesh *mesh = PointMesh::makeCircumferenceGrid (round (PELTIER_RADIUS / world->worldHeat->gridScale), 1);
+        std::cout << "HeatActuatorSlope mesh = ";
+        mesh->print (std::cout);
+        std::cout << '\n';
         peltier = new HeatActuatorSlope
             (this, Vector (0, 0),
              ambientTemperature, PELTIER_SLOPE,
              mesh);
         this->addPhysicInteraction(this->peltier);
         world->worldHeat->drawCircle (THERMAL_DIFFUSIVITY_FAKE_RING, this->pos, PELTIER_RADIUS + world->worldHeat->gridScale);
-        world->worldHeat->drawCircle (WorldHeat::THERMAL_DIFFUSIVITY_COPPER, this->pos, PELTIER_RADIUS);
+        world->worldHeat->drawCircle (THERMAL_DIFFUSIVITY_REAL_CIRCLE, this->pos, PELTIER_RADIUS);
 
         // Add vibration actuator
 

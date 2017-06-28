@@ -40,7 +40,7 @@ step (double dt, PhysicSimulation* ps)
 {
 	WorldHeat *worldHeat = dynamic_cast<WorldHeat *> (ps);
 	if (worldHeat != NULL) {
-		this->measuredHeat = worldHeat->getHeatAt (this->absolutePosition);
+		this->measuredHeat = worldHeat->getHeatAtWorld (this->absolutePosition);
 		// double factor = std::min (1.0, this->thermalResponseTime * dt);
 		// this->measuredHeat =
 		// 	factor * worldHeat->getHeatAt (this->absolutePosition)

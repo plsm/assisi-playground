@@ -52,7 +52,7 @@ step (double dt, PhysicSimulation *ps)
 	WorldHeat *worldHeat = dynamic_cast<WorldHeat *> (ps);
 	if (worldHeat != NULL) {
 		if (this->switchedOn) {
-			worldHeat->setHeatAt (this->absolutePosition, this->getRealHeat (dt, worldHeat));
+			worldHeat->setHeatAtWorld (this->absolutePosition, this->getRealHeat (dt, worldHeat));
 		}
 		if (this->recomputeHeatDistribution) {
 			this->recomputeHeatDistribution = false;

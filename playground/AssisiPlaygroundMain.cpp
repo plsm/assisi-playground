@@ -278,6 +278,21 @@ int main(int argc, char *argv[])
              po::value<double> (&skewReportThreshold),
              "Threshold to print a message because of skewness between real time and simulated time"
             )
+       (
+        "Casu.peltier_slope",
+        po::value<double> (&Casu::PELTIER_SLOPE),
+        "CASU peltier slop"
+        )
+        (
+         "Casu.thermal_diffusivity_fake_ring",
+         po::value<double> (&Casu::THERMAL_DIFFUSIVITY_FAKE_RING),
+         "thermal diffusivity of fake ring around the CASUs to simulate low diffusion between cells in the heat model occupied by a CASU and other cells"
+         )
+        (
+         "Casu.thermal_diffusivity_real_circle",
+         po::value<double> (&Casu::THERMAL_DIFFUSIVITY_REAL_CIRCLE),
+         "thermal diffusivity of circle centred around the CASUs"
+         )
         ;
 
     po::variables_map vm;

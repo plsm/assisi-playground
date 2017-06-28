@@ -109,7 +109,7 @@ bool WorldHeat::validParameters (double deltaTime) const
 	return alpha <= 0.25;
 }
 
-double WorldHeat::getHeatAt (const Vector &pos) const
+double WorldHeat::getHeatAtWorld (const Vector &pos) const
 {
 	int x, y;
 	toIndex (pos, x, y);
@@ -117,11 +117,22 @@ double WorldHeat::getHeatAt (const Vector &pos) const
 }
 
 void WorldHeat::
-setHeatAt (const Vector &pos, double value)
+setHeatAtWorld (const Vector &pos, double value)
 {
 	int x, y;
 	toIndex (pos, x, y);
   // cout << "   heat [" << x << "][" << y << "] = " << value << '\n';
+	this->grid [this->adtIndex][x][y] = value;
+}
+
+double WorldHeat::getHeatAtRaw (int x, int y) const
+{
+	return this->grid [this->adtIndex][x][y];
+}
+
+void WorldHeat::
+setHeatAtRaw (int x, int y, double value)
+{
 	this->grid [this->adtIndex][x][y] = value;
 }
 

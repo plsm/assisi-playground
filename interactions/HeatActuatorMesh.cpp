@@ -65,7 +65,7 @@ step (double dt, PhysicSimulation *ps)
 		if (this->switchedOn) {
 			double value = this->getRealHeat (dt, worldHeat);
 			for (int i = this->mesh->size () - 1; i >= 0; i--) {
-				worldHeat->setHeatAt (this->absolutePosition + (*(this->mesh)) [i], value);
+				worldHeat->setHeatAtWorld (this->absolutePosition + (*(this->mesh)) [i], value);
 			}
 		}
 	}

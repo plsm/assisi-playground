@@ -108,8 +108,22 @@ namespace Enki
 		 */
 		bool validParameters (double deltaTime) const;
 
-		double getHeatAt (const Vector &pos) const;
-		void setHeatAt (const Vector &pos, double value);
+		/**
+		 * Get the temperature at the given world position.
+		 */
+		double getHeatAtWorld (const Vector &pos) const;
+		/**
+		 * Set the temperature at the given world position.
+		 */
+		void setHeatAtWorld (const Vector &pos, double value);
+		/**
+		 * Get the temperature at the given heat model position.
+		 */
+		double getHeatAtRaw (int x, int y) const;
+		/**
+		 * Set the temperature at the given heat model position.
+		 */
+		void setHeatAtRaw (int x, int y, double value);
 
 		double getHeatDiffusivityAt (const Point &position) const;
 		void setHeatDiffusivityAt (const Point &position, double value);

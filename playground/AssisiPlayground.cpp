@@ -253,8 +253,7 @@ void AssisiPlayground::setDataToHeat ()
 	for (pos.x = 0; pos.x < this->dataSize.x; pos.x++) {
 		where.y = -this->world->r + this->worldHeat->gridScale;
 		for (pos.y = 0; pos.y < this->dataSize.y; pos.y++) {
-			double heat = this->worldHeat->getHeatAt (where);
-			//double heat = (this->worldHeat->getHeatDiffusivityAt (where) - 1.11e-4) / (1.9e-5 - 1.11e-4) * (25) + 25 ;
+			double heat = this->worldHeat->getHeatAtWorld (where);
 			std::vector<float> &dc = this->dataColour [pos.x][pos.y];
 			heatToColour (heat, dc [0], dc [1], dc [2]);
 			where.y += this->worldHeat->gridScale;

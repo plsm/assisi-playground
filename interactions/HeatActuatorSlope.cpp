@@ -35,6 +35,10 @@ init (double dt, PhysicSimulation *ps)
     Component::init ();
 }
 
+#ifdef DEBUG
+int updates = 9;
+#endif
+
 void HeatActuatorSlope::
 step (double dt, PhysicSimulation *ps)
 {
@@ -45,18 +49,29 @@ step (double dt, PhysicSimulation *ps)
         //     std::cout << casu->temp_sensors [0]->getMeasuredHeat() << '\n';
         // }
         if (this->switchedOn) {
-            double currentTemperature = worldHeat->getHeatAt (this->absolutePosition + (*(this->mesh)) [0]);
+            int ox, oy;
+            worldHeat->toIndex (this->absolutePosition, ox, oy);
+            const Point &p0 ((*(this->mesh)) [0]);
+            double currentTemperature = worldHeat->getHeatAtRaw (ox + (int) p0.x, oy + (int) p0.y);
             double temperatureDifference = this->targetTemperature - currentTemperature;
             double absoluteTemperatureDifference = fabs (temperatureDifference);
             double absoluteTemperatureChange = std::min (absoluteTemperatureDifference, dt * this->slope);
             double newTemperature = currentTemperature + boost::math::sign (temperatureDifference) * absoluteTemperatureChange;
-            // std::cout << "HeatActuatorSlope::step(" << dt
-            //           << ")  ct=" << currentTemperature
-            //           << "  td=" << temperatureDifference
-            //           << "  atc=" << absoluteTemperatureChange << '\n';
             for (int i = this->mesh->size () - 1; i >= 0; i--) {
-                worldHeat->setHeatAt (this->absolutePosition + (*(this->mesh)) [i], newTemperature);
+                const Point &pi ((*(this->mesh)) [i]);
+                worldHeat->setHeatAtRaw (ox + (int) pi.x, oy + (int) pi.y, newTemperature);
+#ifdef DEBUG
+                if (updates > 0) {
+                    std::cout << " (" << ox + (int) pi.x << "," << oy + (int) pi.y << ")";
+                }
+#endif
             }
+#ifdef DEBUG
+            if (updates > 0) {
+                updates--;
+                std::cout << "\n";
+            }
+#endif
         }
     }
 }

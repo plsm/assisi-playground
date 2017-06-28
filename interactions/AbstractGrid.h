@@ -60,6 +60,7 @@ namespace Enki
 		AbstractGrid (double gridScale, double borderSize, const Enki::Vector& size, const Enki::Vector& origin);
 
 		virtual ~AbstractGrid () {}
+	public:
 		/**
 		 * Convert a world position to grid position.
 		 */

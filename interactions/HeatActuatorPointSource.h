@@ -46,7 +46,7 @@ namespace Enki
 		double getRealHeat (double dt, WorldHeat *worldHeat) const
 		{
 			double factor = std::min (1.0, this->thermalResponseTime * dt);
-			double heat_now = worldHeat->getHeatAt (this->absolutePosition);
+			double heat_now = worldHeat->getHeatAtWorld (this->absolutePosition);
 			double heat_target = factor * this->heat
 				+ (1 - factor) * heat_now;
 			double heat_diff = fabs (heat_now - heat_target);

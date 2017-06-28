@@ -14,7 +14,6 @@
 #include <interactions/IRSensor.h>
 #include "interactions/DiagnosticLed.h"
 #include "interactions/LightSourceFromAbove.h"
-#include "interactions/HeatActuatorMesh.h"
 #include "interactions/WaveVibrationSource.h"
 #include "interactions/VibrationSensor.h"
 #include "interactions/HeatSensor.h"
@@ -68,6 +67,7 @@ namespace Enki
        static const double BRIDGE_WIDTH;
        static const double THERMAL_DIFFUSIVITY_COPPER_BRIDGE;
        static /*const*/ double THERMAL_DIFFUSIVITY_FAKE_RING;
+       static /*const*/ double THERMAL_DIFFUSIVITY_REAL_CIRCLE;
 
        /* air pump's parameters and configuration */
        static const int AIR_PUMP_QUANTITY;

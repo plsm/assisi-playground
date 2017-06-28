@@ -80,7 +80,6 @@ static bool go = true;
 
 
 static LogWorldHeat *logableHeatModel;
-extern double test_diffusivity;
 
 void closeLogFiles (int signum);
 
@@ -174,21 +173,6 @@ int main(int argc, char *argv[])
             po::value<char> (&heatMode),
             "mode the heat model should run. Valid options are: 'N' no heat model; 'S' static heat model; 'D' dynamic heat model (default)"
             )
-       // (
-       //  "Heat.casu_outer_circumference_diffusivity",
-       //  po::value<double> (&test_diffusivity),
-       //  "Heat diffusivity of circumference around CASU ring"
-       //  )
-        // (
-        //  "Heat.thermal_diffusivity_air",
-        //  po::value<double> (&WorldHeat::THERMAL_DIFFUSIVITY_AIR),
-        //  "Heat diffusivity of normal grid cells"
-        // )
-        // (
-        //  "Heat.thermal_diffusivity_copper",
-        //  po::value<double> (&WorldHeat::THERMAL_DIFFUSIVITY_COPPER),
-        //  "Heat diffusivity of grid cells where a CASU is located"
-        // )
         (
             "AirFlow.pump_range",
             po::value<double> (&Casu::AIR_PUMP_RANGE),
@@ -215,11 +199,6 @@ int main(int argc, char *argv[])
             "vibration frequency noise"
             )
         (
-            "Viewer.layer",
-            po::value<char> (&crap),
-            "which data layer should be displayed by default: N none, H heat, V vibration, A airflow"
-            )
-        (
             "Viewer.max_vibration",
             po::value<double> (&maxVibration),
             "maximum displayed vibration intensity"
@@ -227,6 +206,11 @@ int main(int argc, char *argv[])
         (
             "Viewer.no_help",
             "do not show help text"
+            )
+        (
+            "Viewer.layer",
+            po::value<char> (&crap),
+            "which data layer should be displayed by default: N none, H heat, V vibration, A airflow"
             )
         (
             "Simulation.timer_period",
@@ -293,6 +277,11 @@ int main(int argc, char *argv[])
          po::value<double> (&Casu::THERMAL_DIFFUSIVITY_FAKE_RING),
          "thermal diffusivity of fake ring around the CASUs to simulate low diffusion between cells in the heat model occupied by a CASU and other cells"
          )
+        (
+         "Casu.thermal_diffusivity_real_circle",
+         po::value<double> (&Casu::THERMAL_DIFFUSIVITY_REAL_CIRCLE),
+         "thermal diffusivity of circle centred around the CASUs"
+         )
         ;
 
     po::variables_map vm;
@@ -315,7 +304,10 @@ int main(int argc, char *argv[])
     texture = QGLWidget::convertToGLFormat(texture);    
     //texture.invertPixels(QImage::InvertRgba);
     
-    world = new WorldExt (r, pub_address, sub_address,
+    const double inter_casu_distance = 9;
+    const int number_casus = 3;
+    const double rectangle_radius = inter_casu_distance * (number_casus - 1) / 2 + 4 * Casu::PELTIER_RADIUS;
+    world = new WorldExt (max ((int) ceil (rectangle_radius), r), pub_address, sub_address,
         Color::gray, 
         World::GroundTexture (
             texture.width(),
@@ -326,7 +318,7 @@ int main(int argc, char *argv[])
 
     cout << "Creating heat model with logging capabilities\n";
     logableHeatModel = new LogWorldHeat (world, env_temp, heat_scale, heat_border_size, parallelismLevel, heatMode == 'S');
-    logableHeatModel->addRectangle (Point (0, 0), Point (4 * Casu::PELTIER_RADIUS, 0));
+    logableHeatModel->addRectangle (Point (-rectangle_radius, 0), Point (rectangle_radius, 0));
     logableHeatModel->setLogFileName (heat_log_file_name);
     logableHeatModel->setHeader (LogWorldHeat::WORLD_X_COORDINATE);
     logableHeatModel->openLogFile ();
@@ -383,9 +375,13 @@ int main(int argc, char *argv[])
         cout << " " << waiting_times [i];
     }
     cout << " ]\n";
-    Casu *casu = new Casu (Point (0, 0), 0.0, world, env_temp);
-    world->addObject (casu);
-
+    vector<Casu *> casus (number_casus);
+    for (int i = 0; i < number_casus; i++) {
+        Point position (inter_casu_distance * (i - (number_casus - 1) / 2.0), 0);
+        Casu *casu = new Casu (position, 0.0, world, env_temp);
+        world->addObject (casu);
+        casus [i] = casu;
+    }
     {
        ofstream ofs ("heat-properties.csv", ofstream::out | ofstream::trunc);
        for (int y = 0; y < logableHeatModel->size.y; y++) {
@@ -397,15 +393,24 @@ int main(int argc, char *argv[])
        ofs.close ();
     }
     cout << "Save heat model properties\n";
+
+    cout << "\n * ** PARAMETERS ** *\n";
+    cout << "Heat model heat dissipation per cell: " << WorldHeat::CELL_DISSIPATION << '\n';
+    cout << "CASU thermal diffusivity of fake ring: " << Casu::THERMAL_DIFFUSIVITY_FAKE_RING << '\n';
+    cout << "CASU thermal diffusivity of real circle: " << Casu::THERMAL_DIFFUSIVITY_REAL_CIRCLE << '\n';
     for (unsigned int i = 0; i < waiting_times.size (); i++) {
         double elapsed_time = 0;
         if (target_temperatures [i] > 0) {
-            casu->peltier->setHeat (target_temperatures [i]);
-            casu->peltier->setSwitchedOn (true);
+            for (int j = 0 ; j < number_casus; j++) {
+                casus [j]->peltier->setHeat (target_temperatures [i]);
+                casus [j]->peltier->setSwitchedOn (true);
+            }
             cout << "Set peltier temperature to " << target_temperatures [i] << '\n';
         }
         else {
-            casu->peltier->setSwitchedOn (false);
+            for (int j = 0; j < number_casus; j++) {
+                casus [j]->peltier->setSwitchedOn (false);
+            }
             cout << "Turned off the peltier\n";
         }
         do {
